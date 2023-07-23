@@ -141,6 +141,7 @@
     <ClCompile Include="CpuRasterizer.cpp" />
     <ClCompile Include="CpuRenderer.cpp" />
     <ClCompile Include="CpuRenderPipeline.cpp" />
+    <ClCompile Include="D3d11Renderer.cpp" />
     <ClCompile Include="GeometryGenerator.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="main.cpp" />
@@ -156,6 +157,7 @@
     <ClInclude Include="CpuRenderer.h" />
     <ClInclude Include="CpuRenderPipeline.h" />
     <ClInclude Include="CpuShader.h" />
+    <ClInclude Include="D3d11Renderer.h" />
     <ClInclude Include="GeometryGenerator.h" />
     <ClInclude Include="IRenderer.h" />
     <ClInclude Include="Light.h" />
@@ -167,6 +169,14 @@
     <ClInclude Include="Vertex.h" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="ColorPixelShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="ColorVertexShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+    </FxCompile>
     <FxCompile Include="PixelShader.hlsl">
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.0</ShaderModel>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.0</ShaderModel>

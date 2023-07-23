@@ -184,13 +184,13 @@ static Vector4 CpuPixelShader(const PsInput psInput)
     Vector3 color;
 
     // 체크패턴, 디버깅용
-    if (!g_constants.material.diffuseTex)
+    /*if (!g_constants.material.diffuseTex)
     {
         float Size = 0.1f;
         Vector2 Pos = DirectX::XMVectorFloor(psInput.uv / Size);
         float PatternMask = (static_cast<int>(Pos.x) + (static_cast<int>(Pos.y) % 2)) % 2;
         return PatternMask * Vector4(1.0f, 1.0f, 1.0f, 1.0f);
-    }
+    }*/
 
     if (g_constants.lightType == 0) 
     {

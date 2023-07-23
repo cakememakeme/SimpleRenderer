@@ -9,6 +9,7 @@
 #include <memory>
 
 #include "CpuRenderer.h"
+#include "D3d11Renderer.h"
 #include "Mesh.h"
 #include "Light.h"
 #include "GeometryGenerator.h"
@@ -40,8 +41,7 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
             return 0;
         break;
     case WM_MOUSEMOVE:
-        // std::cout << "Mouse " << LOWORD(lParam) << " " << HIWORD(lParam) <<
-        // std::endl;
+        // std::cout << "Mouse " << LOWORD(lParam) << " " << HIWORD(lParam) << std::endl;
         break;
     case WM_LBUTTONUP:
         // std::cout << "WM_LBUTTONUP Left mouse button" << std::endl;
@@ -205,15 +205,20 @@ bool Application::createRenderer(const ERenderer& type)
 {
     switch (type)
     {
-    case ERenderer::D3d11Cpu:
-    {
-        renderer = std::make_unique<CpuRenderer>();
-    }
-    break;
-    default:
-    {
-        return false;
-    }
+        case ERenderer::D3d11Cpu:
+        {
+            renderer = std::make_unique<CpuRenderer>();
+        }
+        break;
+        case ERenderer::D3d11:
+        {
+            renderer = std::make_unique<D3d11Renderer>();
+        }
+        break;
+        default:
+        {
+            return false;
+        }
     }
     return true;
 }

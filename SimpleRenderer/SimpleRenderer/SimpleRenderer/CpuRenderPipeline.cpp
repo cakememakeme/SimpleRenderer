@@ -90,6 +90,18 @@ void CpuRenderPipeline::drawMeshes()
         return;
     }
 
+    // 실제 파이프라인은
+    // 1. Input assembler
+    // 2. Vertex shader
+    // 3. Tessellation
+    // 4. Geometry shader
+    // 5. Rasterization
+    // 6. Fragment shader
+    // 7. Color blending
+    // 기준으로 되어 있다(Vulkan tutorial 기준)
+    // 원래대로라면, Vertex buffer/Index buffer에 있는 버텍스를 3개로 묶어서(Input assemble) 
+    // 묶인 단위만큼 파이프라인에 태워 보내는게 맞으나
+    // 렌더링에 대해서 직관적으로 파악 가능하게끔, 버퍼 단위가 아닌 메시 단위로 나눠서 보낸다
     for (const auto mesh : meshes)
     {
         if (!mesh)
@@ -118,7 +130,7 @@ void CpuRenderPipeline::drawMeshes()
         }
 
         // rasterize 단계
-        for (size_t i = 0; i < g_indexBuffer.size(); i += 3)
+        for (size_t i = 0; i < g_indexBuffer.size(); i += 3) // 3개 씩 묶어서 전달, (Input assemble) 원래 이게 vertex shader보다 먼저 이뤄져야 한다
         {
             CpuRasterizer::DrawIndexedTriangle(i);
         }

@@ -13,11 +13,11 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Shader">
-      <UniqueIdentifier>{afcb7b2d-809e-4978-acf3-c0b82478c18a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="CpuRenderer">
       <UniqueIdentifier>{f182805f-487c-43a5-b9fb-5ee0c2a7184e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="D3d11Renderer">
+      <UniqueIdentifier>{afcb7b2d-809e-4978-acf3-c0b82478c18a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -56,6 +56,9 @@
     </ClCompile>
     <ClCompile Include="CpuRenderPipeline.cpp">
       <Filter>CpuRenderer</Filter>
+    </ClCompile>
+    <ClCompile Include="D3d11Renderer.cpp">
+      <Filter>D3d11Renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -101,6 +104,9 @@
     <ClInclude Include="Vertex.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="D3d11Renderer.h">
+      <Filter>D3d11Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="VertexShader.hlsl">
@@ -108,6 +114,12 @@
     </FxCompile>
     <FxCompile Include="PixelShader.hlsl">
       <Filter>CpuRenderer</Filter>
+    </FxCompile>
+    <FxCompile Include="ColorVertexShader.hlsl">
+      <Filter>D3d11Renderer</Filter>
+    </FxCompile>
+    <FxCompile Include="ColorPixelShader.hlsl">
+      <Filter>D3d11Renderer</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

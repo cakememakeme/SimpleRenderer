@@ -8,6 +8,10 @@ static ERenderer GetRendererType(const std::string& arg)
 	{
 		return ERenderer::D3d11Cpu;
 	}
+	else if (arg == "D3d11")
+	{
+		return ERenderer::D3d11;
+	}
 
 	return ERenderer::None;
 }
