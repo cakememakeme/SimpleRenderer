@@ -105,6 +105,9 @@ bool D3d11Renderer::Initialize(HWND mainWindow, const int bufferWidth, const int
 		return false;
 	}
 
+	// 기타 설정
+	aspect = getAspectRatio();
+
 	return true;
 }
 
@@ -202,9 +205,9 @@ bool D3d11Renderer::initDirect3D()
 			&featureLevel,
 			1,
 			D3D11_SDK_VERSION,
-			&device,
+			device.GetAddressOf(),
 			nullptr,
-			&context)))
+			context.GetAddressOf())))
 		{
 			cout << "D3D11CreateDevice() failed." << endl;
 			return false;
@@ -283,7 +286,7 @@ bool D3d11Renderer::initDirect3D()
 			return false;
 		}
 
-		if (FAILED(dxgiFactory->CreateSwapChain(device.Get(), &swapChainDesc, &swapChain)))
+		if (FAILED(dxgiFactory->CreateSwapChain(device.Get(), &swapChainDesc, swapChain.GetAddressOf())))
 		{
 			std::cout << "CreateSwapChain() failed." << endl;
 			return false;
@@ -293,10 +296,10 @@ bool D3d11Renderer::initDirect3D()
 	// CreateRenderTarget
 	{
 		ComPtr<ID3D11Texture2D> backBuffer;
-		swapChain->GetBuffer(0, IID_PPV_ARGS(&backBuffer));
+		swapChain->GetBuffer(0, IID_PPV_ARGS(backBuffer.GetAddressOf()));
 		if (backBuffer)
 		{
-			if (FAILED(device->CreateRenderTargetView(backBuffer.Get(), nullptr, &renderTargetView)))
+			if (FAILED(device->CreateRenderTargetView(backBuffer.Get(), nullptr, renderTargetView.GetAddressOf())))
 			{
 				cout << "CreateRenderTargetView() failed." << endl;
 				return false;
@@ -330,7 +333,9 @@ bool D3d11Renderer::initDirect3D()
 		// rastDesc.FillMode = D3D11_FILL_MODE::D3D11_FILL_WIREFRAME;
 		rastDesc.CullMode = D3D11_CULL_MODE::D3D11_CULL_NONE;
 		rastDesc.FrontCounterClockwise = false;
-		device->CreateRasterizerState(&rastDesc, &rasterizerSate);
+		rastDesc.DepthClipEnable = true;
+
+		device->CreateRasterizerState(&rastDesc, rasterizerState.GetAddressOf());
 	}
 
 	// Create depth buffer
@@ -356,7 +361,7 @@ bool D3d11Renderer::initDirect3D()
 		depthStencilBufferDesc.CPUAccessFlags = 0;
 		depthStencilBufferDesc.MiscFlags = 0;
 
-		if (FAILED(device->CreateTexture2D(&depthStencilBufferDesc, 0, &depthStencilBuffer)))
+		if (FAILED(device->CreateTexture2D(&depthStencilBufferDesc, 0, depthStencilBuffer.GetAddressOf())))
 		{
 			cout << "CreateTexture2D() failed." << endl;
 		}
@@ -373,7 +378,7 @@ bool D3d11Renderer::initDirect3D()
 		depthStencilDesc.DepthEnable = true; // false
 		depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ALL;
 		depthStencilDesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
-		if (FAILED(device->CreateDepthStencilState(&depthStencilDesc, &depthStencilState)))
+		if (FAILED(device->CreateDepthStencilState(&depthStencilDesc, depthStencilState.GetAddressOf())))
 		{
 			cout << "CreateDepthStencilState() failed." << endl;
 		}
@@ -520,32 +525,49 @@ bool D3d11Renderer::createPixelShader(const wstring& filename, ComPtr<ID3D11Pixe
 void D3d11Renderer::updateGui()
 {
 	ImGui::Checkbox("usePerspectiveProjection", &bUsePerspectiveProjection);
+
+	ImGui::SliderFloat3("modelTranslation", &modelTranslation.x, -2.0f, 2.0f);
+	ImGui::SliderFloat3("modelRotation(Rad)", &modelRotation.x, -3.14f, 3.14f);
+	ImGui::SliderFloat3("modelScaling", &modelScaling.x, 0.1f, 2.0f);
+
+	ImGui::SliderFloat3("viewEyePos", &viewEyePos.x, -4.0f, 4.0f);
+	ImGui::SliderFloat3("viewEyeDir", &viewEyeDir.x, -4.0f, 4.0f);
+	ImGui::SliderFloat3("viewUp", &viewUp.x, -2.0f, 2.0f);
+	if (XMVector3Equal(viewUp, XMVectorZero()))
+	{
+		viewUp.y = 0.001f;
+	}
+
+	ImGui::SliderFloat("projFovAngleY(Deg)", &projFovAngleY, 10.0f, 180.0f);
+	ImGui::SliderFloat("nearZ", &nearZ, 0.01f, 10.0f);
+	ImGui::SliderFloat("farZ", &farZ, nearZ + 0.01f, 15.0f);
+	ImGui::SliderFloat("aspect", &aspect, 1.0f, 3.0f);
 }
 
 void D3d11Renderer::update(float dt)
 {
-	static float rot = 0.0f;
-	rot += dt;
-
 	// 모델의 변환
-	constantBufferData.Model = Matrix::CreateScale(0.5f) * Matrix::CreateRotationY(rot) * Matrix::CreateTranslation(Vector3(0.0f, -0.3f, 1.0f));
+	constantBufferData.Model = Matrix::CreateScale(modelScaling) *
+							   Matrix::CreateRotationY(modelRotation.y) * 
+							   Matrix::CreateRotationX(modelRotation.x) *
+							   Matrix::CreateRotationZ(modelRotation.z) *
+							   Matrix::CreateTranslation(modelTranslation);
 	// (복습)HLSL 은 오른손 좌표계, Direct3D는 왼손 좌표계(Row-major)
 	constantBufferData.Model = constantBufferData.Model.Transpose(); // R-major에서 C-major로
 
 	// 시점 변환
-	constantBufferData.View = XMMatrixLookAtLH({ 0.0f, 0.0f, -1.0f }, { 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f });
+	//constantBufferData.View = XMMatrixLookAtLH(viewEye, viewFocus, viewUp); 내부적으로 XMMatrixLookToLH() 호출함
+	constantBufferData.View = XMMatrixLookToLH(viewEyePos, viewEyeDir, viewUp);
 	constantBufferData.View = constantBufferData.View.Transpose();
 
 	// 프로젝션
-	const float aspect = getAspectRatio();
 	if (bUsePerspectiveProjection) 
 	{
-		const float fovAngleY = 70.0f * XM_PI / 180.0f;
-		constantBufferData.Projection = XMMatrixPerspectiveFovLH(fovAngleY, aspect, 0.01f, 100.0f);
+		constantBufferData.Projection = XMMatrixPerspectiveFovLH(XMConvertToRadians(projFovAngleY), aspect, nearZ, farZ);
 	}
 	else 
 	{
-		constantBufferData.Projection = XMMatrixOrthographicOffCenterLH(-aspect, aspect, -1.0f, 1.0f, 0.1f, 10.0f);
+		constantBufferData.Projection = XMMatrixOrthographicOffCenterLH(-aspect, aspect, -1.0f, 1.0f, nearZ, farZ);
 	}
 	constantBufferData.Projection = constantBufferData.Projection.Transpose();
 
@@ -585,7 +607,7 @@ void D3d11Renderer::render()
 	context->VSSetConstantBuffers(0, 1, constantBuffer.GetAddressOf());
 	context->PSSetShader(colorPixelShader.Get(), 0, 0);
 
-	context->RSSetState(rasterizerSate.Get());
+	context->RSSetState(rasterizerState.Get());
 
 	// 버텍스/인덱스 버퍼 설정
 	UINT stride = sizeof(Vertex);

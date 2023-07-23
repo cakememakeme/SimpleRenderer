@@ -19,6 +19,16 @@ struct ModelViewProjectionConstantBuffer
 class D3d11Renderer : public IRenderer
 {
 	bool bUsePerspectiveProjection = true;
+	DirectX::SimpleMath::Vector3 modelTranslation = DirectX::SimpleMath::Vector3(0.0f);
+	DirectX::SimpleMath::Vector3 modelRotation = DirectX::SimpleMath::Vector3(0.0f);
+	DirectX::SimpleMath::Vector3 modelScaling = DirectX::SimpleMath::Vector3(0.5f);
+	DirectX::SimpleMath::Vector3 viewEyePos = { 0.0f, 0.0f, -2.0f };
+	DirectX::SimpleMath::Vector3 viewEyeDir = { 0.0f, 0.0f, 1.0f };
+	DirectX::SimpleMath::Vector3 viewUp = { 0.0f, 1.0f, 0.0f };
+	float projFovAngleY = 70.0f;
+	float nearZ = 0.01f;
+	float farZ = 15.0f;
+	float aspect = 0.0f;
 
 	// 윈도우 핸들
 	HWND mainWindowHandle;
@@ -35,7 +45,7 @@ class D3d11Renderer : public IRenderer
 	// 여기선 ComPtr를 안쓰면 오히려 문제가 생긴다 -_-;
 	//ID3D11RenderTargetView* renderTargetView;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> renderTargetView;
-	Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterizerSate;
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterizerState;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> depthStencilBuffer;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> depthStencilView;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> depthStencilState;
