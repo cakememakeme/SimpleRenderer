@@ -16,6 +16,23 @@ struct ModelViewProjectionConstantBuffer
 	DirectX::SimpleMath::Matrix Projection;
 };
 
+// 주의:
+// For a constant buffer (BindFlags of D3D11_BUFFER_DESC set to
+// D3D11_BIND_CONSTANT_BUFFER), you must set the ByteWidth value of
+// D3D11_BUFFER_DESC in multiples of 16, and less than or equal to
+// D3D11_REQ_CONSTANT_BUFFER_ELEMENT_COUNT.
+// https://learn.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11device-createbuffer
+
+static_assert((sizeof(ModelViewProjectionConstantBuffer) % 16) == 0, "Constant Buffer size must be 16-byte aligned");
+
+struct PixelShaderConstantBuffer 
+{
+	float xSplit;
+	DirectX::SimpleMath::Vector3 padding;
+};
+
+static_assert((sizeof(PixelShaderConstantBuffer) % 16) == 0, "Constant Buffer size must be 16-byte aligned");
+
 class D3d11Renderer : public IRenderer
 {
 	bool bUsePerspectiveProjection = true;
@@ -116,6 +133,12 @@ private:
 	template <typename T_CONSTANT>
 	bool createConstantBuffer(const T_CONSTANT& constantBufferData, Microsoft::WRL::ComPtr<ID3D11Buffer>& constantBuffer)
 	{
+		// 주의:
+		// For a constant buffer (BindFlags of D3D11_BUFFER_DESC set to
+		// D3D11_BIND_CONSTANT_BUFFER), you must set the ByteWidth value of
+		// D3D11_BUFFER_DESC in multiples of 16, and less than or equal to
+		// D3D11_REQ_CONSTANT_BUFFER_ELEMENT_COUNT.
+
 		D3D11_BUFFER_DESC cbDesc;
 		cbDesc.ByteWidth = sizeof(constantBufferData);
 		cbDesc.Usage = D3D11_USAGE_DYNAMIC;
@@ -125,14 +148,14 @@ private:
 		cbDesc.StructureByteStride = 0;
 
 		// Fill in the subresource data.
-		D3D11_SUBRESOURCE_DATA InitData;
-		InitData.pSysMem = &constantBufferData;
-		InitData.SysMemPitch = 0;
-		InitData.SysMemSlicePitch = 0;
+		D3D11_SUBRESOURCE_DATA initData;
+		initData.pSysMem = &constantBufferData;
+		initData.SysMemPitch = 0;
+		initData.SysMemSlicePitch = 0;
 
-		if (FAILED(device->CreateBuffer(&cbDesc, &InitData, constantBuffer.GetAddressOf())))
+		if (FAILED(device->CreateBuffer(&cbDesc, &initData, constantBuffer.GetAddressOf())))
 		{
-			std::cout << "CreateBuffer() failed. " << std::endl;
+			std::cout << "createConstantBuffer() failed. " << std::endl;
 			return false;
 		}
 
@@ -155,6 +178,12 @@ private:
 	template <typename T_DATA>
 	void updateBuffer(const T_DATA& bufferData, Microsoft::WRL::ComPtr<ID3D11Buffer>& buffer)
 	{
+		if (!buffer) 
+		{
+			std::cout << "UpdateBuffer() buffer was not initialized." << std::endl;
+			return;
+		}
+
 		D3D11_MAPPED_SUBRESOURCE ms;
 		context->Map(buffer.Get(), NULL, D3D11_MAP_WRITE_DISCARD, NULL, &ms);
 		memcpy(ms.pData, &bufferData, sizeof(bufferData));

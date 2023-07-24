@@ -8,6 +8,10 @@
 #include <d3dcompiler.h>
 
 #include <tuple>
+//수동으로 쉐이더 컴파일
+//#include <fstream>
+//#include <iterator>
+//#include <vector>
 
 #include "Vertex.h"
 #include "GeometryGenerator.h"
@@ -91,6 +95,7 @@ bool D3d11Renderer::Initialize(HWND mainWindow, const int bufferWidth, const int
 	{
 		{"POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0},
 		{"COLOR", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 4 * 3, D3D11_INPUT_PER_VERTEX_DATA, 0},
+		//{"TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 4 * 6, D3D11_INPUT_PER_VERTEX_DATA, 0},
 	};
 
 	if (!createVertexShaderAndInputLayout(L"ColorVertexShader.hlsl", inputElements, colorVertexShader, colorInputLayout))
@@ -439,8 +444,13 @@ bool D3d11Renderer::createVertexShaderAndInputLayout(
 	ComPtr<ID3DBlob> shaderBlob;
 	ComPtr<ID3DBlob> errorBlob;
 
+	UINT compileFlags = 0;
+#if defined(DEBUG) || defined(_DEBUG)
+	compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+#endif
+
 	// 주의: 쉐이더의 시작점의 이름이 "main"인 함수로 지정
-	HRESULT hr = D3DCompileFromFile(filename.c_str(), 0, 0, "main", "vs_5_0", 0, 0, &shaderBlob, &errorBlob);
+	HRESULT hr = D3DCompileFromFile(filename.c_str(), 0, 0, "main", "vs_5_0", compileFlags, 0, &shaderBlob, &errorBlob);
 
 	if (FAILED(hr))
 	{
@@ -475,11 +485,26 @@ bool D3d11Renderer::createVertexShaderAndInputLayout(
 		UINT(inputElements.size()),
 		shaderBlob->GetBufferPointer(),
 		shaderBlob->GetBufferSize(),
-		&inputLayout)))
+		inputLayout.GetAddressOf())))
 	{
 		cout << "CreateInputLayout() failed.\n" << endl;
 		return false;
 	}
+	// 참고: 수동으로 컴파일 하기
+	// "fxc.exe"의 위치는 각자 다를 수도 있습니다.
+	//"C:\Program Files (x86)\Windows Kits\10\bin\10.0.19041.0\x86\fxc.exe"
+	// C:\Users\jmhong\HongLabGraphicsPart2\06_GraphicsPipeline_Step4_Shaders\ColorVertexShader.hlsl
+	// /T "vs_5_0" /E "main" /Fo "ColorVertexShader.cso" /Fx
+	// "ColorVertexShader.asm"
+
+	// ifstream input("ColorVertexShader.cso", ios::binary);
+	// vector<unsigned char> buffer(istreambuf_iterator<char>(input), {});
+	// m_device->CreateVertexShader(buffer.data(), buffer.size(), NULL,
+	//                              &vertexShader);
+
+	// m_device->CreateInputLayout(inputElements.data(),
+	//                             UINT(inputElements.size()), buffer.data(),
+	//                             buffer.size(), &inputLayout);
 
 	return true;
 }
@@ -489,8 +514,13 @@ bool D3d11Renderer::createPixelShader(const wstring& filename, ComPtr<ID3D11Pixe
 	ComPtr<ID3DBlob> shaderBlob;
 	ComPtr<ID3DBlob> errorBlob;
 
+	UINT compileFlags = 0;
+#if defined(DEBUG) || defined(_DEBUG)
+	compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+#endif
+
 	// 주의: 쉐이더의 시작점의 이름이 "main"인 함수로 지정
-	HRESULT hr = D3DCompileFromFile(filename.c_str(), 0, 0, "main", "ps_5_0", 0, 0, &shaderBlob, &errorBlob);
+	HRESULT hr = D3DCompileFromFile(filename.c_str(), 0, 0, "main", "ps_5_0", compileFlags, 0, &shaderBlob, &errorBlob);
 
 	if (FAILED(hr))
 	{
@@ -513,7 +543,7 @@ bool D3d11Renderer::createPixelShader(const wstring& filename, ComPtr<ID3D11Pixe
 		shaderBlob->GetBufferPointer(),
 		shaderBlob->GetBufferSize(),
 		nullptr,
-		&pixelShader)))
+		pixelShader.GetAddressOf())))
 	{
 		cout << "CreatePixelShader() failed.\n" << endl;
 		return false;

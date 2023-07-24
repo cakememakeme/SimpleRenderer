@@ -306,3 +306,45 @@ std::tuple<std::vector<Vertex>, std::vector<uint16_t>> GeometryGenerator::MakeBo
 
     return tuple{ vertices, indices };
 }
+
+std::tuple<std::vector<Vertex>, std::vector<uint16_t>> GeometryGenerator::MakeSquare_TEMP()
+{
+    vector<Vector3> positions;
+    vector<Vector3> colors;
+    vector<Vector3> normals;
+    vector<Vector2> texcoords; // ÅØ½ºÃç ÁÂÇ¥
+
+    const float scale = 1.0f;
+
+    // ¾Õ¸é
+    positions.push_back(Vector3(-1.0f, 1.0f, 0.0f) * scale);
+    positions.push_back(Vector3(1.0f, 1.0f, 0.0f) * scale);
+    positions.push_back(Vector3(1.0f, -1.0f, 0.0f) * scale);
+    positions.push_back(Vector3(-1.0f, -1.0f, 0.0f) * scale);
+    colors.push_back(Vector3(1.0f, 1.0f, 1.0f));
+    colors.push_back(Vector3(0.0f, 0.0f, 1.0f));
+    colors.push_back(Vector3(0.0f, 1.0f, 0.0f));
+    colors.push_back(Vector3(1.0f, 0.0f, 0.0f));
+    normals.push_back(Vector3(0.0f, 0.0f, -1.0f));
+    normals.push_back(Vector3(0.0f, 0.0f, -1.0f));
+    normals.push_back(Vector3(0.0f, 0.0f, -1.0f));
+    normals.push_back(Vector3(0.0f, 0.0f, -1.0f));
+    texcoords.push_back(Vector2(0.0f, 0.0f));
+    texcoords.push_back(Vector2(1.0f, 0.0f));
+    texcoords.push_back(Vector2(1.0f, 1.0f));
+    texcoords.push_back(Vector2(0.0f, 1.0f));
+
+    vector<Vertex> vertices;
+    for (size_t i = 0; i < positions.size(); i++) {
+        Vertex v;
+        v.Position = positions[i];
+        v.Color = colors[i];
+        v.TexCoord = texcoords[i];
+        vertices.push_back(v);
+    }
+    vector<uint16_t> indices = {
+        0, 1, 2, 0, 2, 3, // ¾Õ¸é
+    };
+
+    return tuple{ vertices, indices };
+}
