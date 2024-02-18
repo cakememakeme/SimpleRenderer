@@ -118,6 +118,9 @@ static Vector3 ComputePointLight(Light L, Material mat, Vector3 pos, Vector3 nor
 
     lightVec /= d;
 
+    Vector3 norm = lightVec;
+    norm.Normalize();
+
     float ndotl = std::max(lightVec.Dot(normal), 0.0f);
     Vector3 lightStrength = L.Strength * ndotl;
 

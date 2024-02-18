@@ -8,7 +8,7 @@ enum class ERenderer
 {
 	None = 0,
 	D3d11,
-	D3d11Cpu,
+	Cpu,
 	//D3d11Rt,
 	//D3d11Pbr,
 	//Vk,

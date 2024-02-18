@@ -87,7 +87,7 @@ public:
 
 	virtual bool Initialize(HWND mainWindow, const int bufferWidth, const int bufferHeight) override;
 
-	virtual bool SetObjects(std::shared_ptr<std::vector<std::shared_ptr<Object>>> receivedObjects) override;
+	virtual bool SetObjects(std::vector<std::shared_ptr<Object>>&& receivedObjects) override;
 
 	virtual void Update() override;
 

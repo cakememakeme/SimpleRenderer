@@ -35,7 +35,7 @@ public:
 
     void Reset();
 
-    void SetObjects(std::shared_ptr<std::vector<std::shared_ptr<Object>>> receivedObjects);
+    void SetObjects(const std::vector<std::shared_ptr<Object>>& receivedObjects);
 
     void SetLightType(const ELightType lightType);
 

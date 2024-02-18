@@ -63,10 +63,10 @@ bool CpuRenderer::Initialize(HWND mainWindow, const int bufferWidth, const int b
 	return true;
 }
 
-bool CpuRenderer::SetObjects(std::shared_ptr<std::vector<std::shared_ptr<Object>>> receivedObjects)
+bool CpuRenderer::SetObjects(std::vector<std::shared_ptr<Object>>&& receivedObjects)
 {
-	objects = receivedObjects;
-	if (objects)
+	objects = std::move(receivedObjects);
+	if (!objects.empty())
 	{
 		return true;
 	}
@@ -515,18 +515,13 @@ shared_ptr<vector<Vector4>> CpuRenderer::renderViaCpu()
 
 bool CpuRenderer::selectModel()
 {
-	if (!objects)
-	{
-		return false;
-	}
-
-	if (objects->empty())
+	if (objects.empty())
 	{
 		return false;
 	}
 
 	// @todo. 여러 개의 오브젝트 설정 구현
-	for (auto& object : *objects.get())
+	for (auto& object : objects)
 	{
 		shared_ptr<Mesh> mesh = dynamic_pointer_cast<Mesh>(object);
 		if (mesh)

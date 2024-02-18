@@ -27,7 +27,7 @@ private:
 	// Cpu Rendering
 	std::unique_ptr<CpuRenderPipeline> cpuPipeline;
 
-	std::shared_ptr<std::vector<std::shared_ptr<Object>>> objects;
+	std::vector<std::shared_ptr<Object>> objects;
 	
 	std::shared_ptr<Mesh> selectedMesh;
 
@@ -81,7 +81,7 @@ public:
 
 	bool Initialize(HWND mainWindow, const int bufferWidth, const int bufferHeight) override;
 
-	bool SetObjects(std::shared_ptr<std::vector<std::shared_ptr<Object>>> receivedObjects) override;
+	bool SetObjects(std::vector<std::shared_ptr<Object>>&& receivedObjects) override;
 
 	void Update() override;
 

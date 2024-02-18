@@ -116,7 +116,7 @@ bool D3d11Renderer::Initialize(HWND mainWindow, const int bufferWidth, const int
 	return true;
 }
 
-bool D3d11Renderer::SetObjects(std::shared_ptr<std::vector<std::shared_ptr<Object>>> receivedObjects)
+bool D3d11Renderer::SetObjects(std::vector<std::shared_ptr<Object>>&& receivedObjects)
 {
 	return false;
 }

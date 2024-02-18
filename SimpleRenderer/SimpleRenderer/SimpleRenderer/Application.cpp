@@ -88,42 +88,42 @@ bool Application::Initialize(const ERenderer type)
         return false;
     }
 
-    shared_ptr<vector<shared_ptr<Object>>> objects = make_shared<std::vector<std::shared_ptr<Object>>>();
+    vector<shared_ptr<Object>> objects = std::vector<std::shared_ptr<Object>>();
     
     // 메시 설정
-    //std::vector<Mesh> meshes = GeometryGenerator::ReadFromFile("./groza/", "Wp_Gun_Groza.fbx");
-    //objects->reserve(meshes.size());
-    //for (const Mesh& mesh : meshes)
-    //{
-    //    std::shared_ptr<Mesh> newMesh = make_shared<Mesh>(mesh);
-    //    newMesh->Transform.rotationX += 0.15f;
-    //    newMesh->Transform.translation.y -= 0.2f;
-    //    newMesh->Transform.translation.z -= 0.5f;
-    //    newMesh->Transform.scale = Vector3(0.7f);
-    //    objects->push_back(newMesh);
-    //}
+    std::vector<Mesh> meshes = GeometryGenerator::ReadFromFile("./groza/", "Wp_Gun_Groza.fbx");
+    objects.reserve(meshes.size());
+    for (const Mesh& mesh : meshes)
+    {
+        std::shared_ptr<Mesh> newMesh = make_shared<Mesh>(mesh);
+        newMesh->Transform.rotationX += 0.15f;
+        newMesh->Transform.translation.y -= 0.2f;
+        newMesh->Transform.translation.z -= 0.5f;
+        newMesh->Transform.scale = Vector3(0.7f);
+        objects.push_back(newMesh);
+    }
     
     //박스 테스트
-    std::shared_ptr<Mesh> mesh = make_shared<Mesh>(GeometryGenerator::MakeBox());
-    if (mesh)
-    {
-        //mesh->TestBox();
-        mesh->Transform.translation = Vector3(0.0f, -0.8f, 1.0f);
-        mesh->Transform.rotationX = -3.141592f * 30.0f / 180.0f;
-        mesh->Transform.rotationY = 0.0f;
-        mesh->Transform.scale = Vector3(0.7f, 0.7f, 0.7f);
-        objects->push_back(mesh);
-    }
+    //std::shared_ptr<Mesh> mesh = make_shared<Mesh>(GeometryGenerator::MakeBox());
+    //if (mesh)
+    //{
+    //    //mesh->TestBox();
+    //    mesh->Transform.translation = Vector3(0.0f, -0.8f, 1.0f);
+    //    mesh->Transform.rotationX = -3.141592f * 30.0f / 180.0f;
+    //    mesh->Transform.rotationY = 0.0f;
+    //    mesh->Transform.scale = Vector3(0.7f, 0.7f, 0.7f);
+    //    objects->push_back(mesh);
+    //}
 
     std::shared_ptr<Light> light = make_shared<Light>();
     if (light)
     {
         light->Strength = Vector3(1.0f);
         light->Direction = Vector3(0.0f, -0.5f, 0.5f);
-        objects->push_back(light);
+        objects.push_back(light);
     }
 
-    renderer->SetObjects(objects);
+    renderer->SetObjects(std::move(objects));
     
 	return true;
 }
@@ -205,7 +205,7 @@ bool Application::createRenderer(const ERenderer& type)
 {
     switch (type)
     {
-        case ERenderer::D3d11Cpu:
+        case ERenderer::Cpu:
         {
             renderer = std::make_unique<CpuRenderer>();
         }

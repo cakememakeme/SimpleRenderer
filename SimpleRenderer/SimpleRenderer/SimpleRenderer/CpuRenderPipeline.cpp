@@ -43,9 +43,9 @@ void CpuRenderPipeline::Reset()
     fill(g_depthBuffer.begin(), g_depthBuffer.end(), 10.0f);
 }
 
-void CpuRenderPipeline::SetObjects(std::shared_ptr<std::vector<std::shared_ptr<Object>>> receivedObjects)
+void CpuRenderPipeline::SetObjects(const std::vector<std::shared_ptr<Object>>& receivedObjects)
 {
-    for (auto& object : *receivedObjects.get())
+    for (auto& object : receivedObjects)
     {
         shared_ptr<Mesh> mesh = dynamic_pointer_cast<Mesh>(object);
         if (mesh)
