@@ -3,6 +3,7 @@
 #include <iostream>
 #include <algorithm>
 
+#include "CpuRasterizer.h"
 #include "CpuShader.h"
 
 using namespace DirectX::SimpleMath;
@@ -23,8 +24,7 @@ bool CpuRenderPipeline::Initialize(const int bufferWidth, const int bufferHeight
     const int bufferSize = g_width * g_height;
 
     // 출력용 버퍼 초기화(@todo. swapchain 구현...? 아마 안하지 않을까)
-    g_displayBuffer = make_shared<vector<Vector4>>();
-    g_displayBuffer->resize(bufferSize);
+    g_displayBuffer.resize(bufferSize);
 
     // 깊이 버퍼 초기화
     g_depthBuffer.resize(bufferSize, 0.0f);
@@ -34,10 +34,10 @@ bool CpuRenderPipeline::Initialize(const int bufferWidth, const int bufferHeight
 
 void CpuRenderPipeline::Reset()
 {
-    std::fill(g_displayBuffer->begin(), g_displayBuffer->end(), Vector4(0.45f, 0.5f, 0.45f, 1.0f)); // 국방색 배경
+    std::fill(g_displayBuffer.begin(), g_displayBuffer.end(), Vector4(0.45f, 0.5f, 0.45f, 1.0f)); // 국방색 배경
     
     // 깊이 버퍼 초기화
-    g_depthBuffer.resize(g_displayBuffer->size());
+    g_depthBuffer.resize(g_displayBuffer.size());
     
     // 깊이는 최대 10.0f (-> 렌더 거리도 10.0f 이하)
     fill(g_depthBuffer.begin(), g_depthBuffer.end(), 10.0f);
@@ -73,7 +73,7 @@ void CpuRenderPipeline::SetClippingPlane(const float leftClip, const float right
     g_bottomClip = bottomClip;
 }
 
-std::shared_ptr<std::vector<DirectX::SimpleMath::Vector4>> CpuRenderPipeline::Process()
+std::vector<DirectX::SimpleMath::Vector4> CpuRenderPipeline::Process()
 {
     Reset();
 
@@ -121,7 +121,7 @@ void CpuRenderPipeline::drawMeshes()
             //vsInput.uv = uvBuffer[i]; 
 
             // vertex shader 단계
-            VsOutput vsOutput = CpuVertexShader(vsInput);
+            VsOutput vsOutput = CpuShader::CpuVertexShader(vsInput);
 
             g_vertexBuffer[i] = vsOutput.Position;
             g_normalBuffer[i] = vsOutput.normal;

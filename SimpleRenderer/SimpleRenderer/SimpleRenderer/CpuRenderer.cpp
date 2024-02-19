@@ -94,16 +94,16 @@ void CpuRenderer::Render()
 
 	// copy to resource
 	{
-		shared_ptr<vector<Vector4>> displayBuffer = renderViaCpu(); // CPU ·»´õ¸µ
-		if (!displayBuffer)
+		vector<Vector4> displayBuffer = renderViaCpu(); // CPU ·»´õ¸µ
+		if (displayBuffer.empty())
 		{
 			std::cout << "renderViaCpu() failed." << std::endl;
-			displayBuffer = make_shared<vector<Vector4>>();
-			std::fill(displayBuffer->begin(), displayBuffer->end(), Vector4(0.0f, 0.0f, 0.0f, 1.0f));
+			displayBuffer.resize(width * height);
+			std::fill(displayBuffer.begin(), displayBuffer.end(), Vector4(0.0f, 0.0f, 0.0f, 1.0f));
 		}
 		D3D11_MAPPED_SUBRESOURCE subresource = {};
 		context->Map(canvasTexture, 0, D3D11_MAP_WRITE_DISCARD, 0, &subresource);
-		memcpy(subresource.pData, displayBuffer->data(), displayBuffer->size() * sizeof(Vector4));
+		memcpy(subresource.pData, displayBuffer.data(), displayBuffer.size() * sizeof(Vector4));
 		context->Unmap(canvasTexture, 0);
 	}
 
@@ -449,6 +449,8 @@ void CpuRenderer::updateGui()
 
 		ImGui::SliderFloat("Clipping Bottom", &bottomClip, -1.0f, 1.0f);
 
+		//ImGui::SliderFloat("Clipping Near", &nearClip, 0.0f, 1.0f);
+
 		ImGui::SliderAngle("Object RotationAboutX", &selectedMesh->Transform.rotationX);
 
 		ImGui::SliderAngle("Object RotationAboutY", &selectedMesh->Transform.rotationY);
@@ -508,7 +510,7 @@ void CpuRenderer::updateGui()
 	ImGui::Render();
 }
 
-shared_ptr<vector<Vector4>> CpuRenderer::renderViaCpu()
+vector<Vector4> CpuRenderer::renderViaCpu()
 {
 	return cpuPipeline->Process();
 }

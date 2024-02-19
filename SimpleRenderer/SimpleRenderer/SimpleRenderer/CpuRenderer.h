@@ -98,6 +98,6 @@ private:
 
 	void updateGui();
 	bool selectModel();
-	std::shared_ptr<std::vector<DirectX::SimpleMath::Vector4>> renderViaCpu();
+	std::vector<DirectX::SimpleMath::Vector4> renderViaCpu();
 };
 
