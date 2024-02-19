@@ -1,14 +1,5 @@
 #pragma once
 
-#include <directxtk/SimpleMath.h>
-#include <DirectXMath.h>
-#include <DirectXPackedVector.h>
-
-#include "Light.h"
-#include "Material.h"
-#include "Mesh.h"
-#include "Texture.h"
-
 #include <memory>
 #include <list>
 #include <algorithm>
@@ -16,6 +7,10 @@
 #include <iostream>
 
 #include "CpuShader.h"
+
+using namespace DirectX;
+using namespace DirectX::SimpleMath;
+using namespace DirectX::PackedVector;
 
 namespace CpuRasterizer
 {
