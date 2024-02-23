@@ -65,12 +65,13 @@ void CpuRenderPipeline::SetLightType(const ELightType lightType)
     g_lightType = static_cast<int>(lightType);
 }
 
-void CpuRenderPipeline::SetClippingPlane(const float leftClip, const float rightClip, const float topClip, const float bottomClip)
+void CpuRenderPipeline::SetClippingPlane(const float leftClip, const float rightClip, const float topClip, const float bottomClip, const float nearClip)
 {
     g_leftClip = leftClip;
     g_rightClip = rightClip;
     g_topClip = topClip;
     g_bottomClip = bottomClip;
+    g_nearClip = nearClip;
 }
 
 std::vector<DirectX::SimpleMath::Vector4> CpuRenderPipeline::Process()

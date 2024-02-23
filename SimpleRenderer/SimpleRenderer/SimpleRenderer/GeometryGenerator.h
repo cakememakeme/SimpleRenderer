@@ -9,6 +9,8 @@ public:
 
 	static Mesh MakeBox();
 
+	static Mesh MakePlane();
+
 	static std::tuple<std::vector<Vertex>, std::vector<uint16_t>> MakeBox_TEMP();
 
 	static std::tuple<std::vector<Vertex>, std::vector<uint16_t>> MakeSquare_TEMP();

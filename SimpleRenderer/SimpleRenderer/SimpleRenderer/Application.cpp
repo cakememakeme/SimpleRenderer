@@ -98,22 +98,28 @@ bool Application::Initialize(const ERenderer type)
         std::shared_ptr<Mesh> newMesh = make_shared<Mesh>(mesh);
         newMesh->Transform.rotationX += 0.15f;
         newMesh->Transform.translation.y -= 0.2f;
-        newMesh->Transform.translation.z -= 0.5f;
-        newMesh->Transform.scale = Vector3(0.7f);
+        newMesh->Transform.translation.z += 0.2f;
+        newMesh->Transform.scale = Vector3(2.0f);
         objects.push_back(newMesh);
     }
     
-    //박스 테스트
-    //std::shared_ptr<Mesh> mesh = make_shared<Mesh>(GeometryGenerator::MakeBox());
-    //if (mesh)
-    //{
-    //    //mesh->TestBox();
-    //    mesh->Transform.translation = Vector3(0.0f, -0.8f, 1.0f);
-    //    mesh->Transform.rotationX = -3.141592f * 30.0f / 180.0f;
-    //    mesh->Transform.rotationY = 0.0f;
-    //    mesh->Transform.scale = Vector3(0.7f, 0.7f, 0.7f);
-    //    objects->push_back(mesh);
-    //}
+    //테스트
+    {
+        ////박스
+        //std::shared_ptr<Mesh> mesh = make_shared<Mesh>(GeometryGenerator::MakeBox());
+        //
+        ////평면
+        ////std::shared_ptr<Mesh> mesh = make_shared<Mesh>(GeometryGenerator::MakePlane());
+        //if (mesh)
+        //{
+        //    //mesh->TestBox();
+        //    mesh->Transform.translation = Vector3(0.0f, -0.8f, 1.0f);
+        //    mesh->Transform.rotationX = -3.141592f * 30.0f / 180.0f;
+        //    mesh->Transform.rotationY = 0.0f;
+        //    mesh->Transform.scale = Vector3(1.0f, 1.0f, 1.0f);
+        //    objects.push_back(mesh);
+        //}
+    }
 
     std::shared_ptr<Light> light = make_shared<Light>();
     if (light)

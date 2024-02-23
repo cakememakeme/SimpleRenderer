@@ -80,6 +80,7 @@ float g_leftClip;
 float g_rightClip;
 float g_topClip;
 float g_bottomClip;
+float g_nearClip;
 
 // ~gui에서 조절 가능한 파라미터 목록
 

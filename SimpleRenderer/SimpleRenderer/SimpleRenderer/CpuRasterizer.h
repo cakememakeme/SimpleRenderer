@@ -15,9 +15,9 @@ using namespace DirectX::PackedVector;
 namespace CpuRasterizer
 {
 
+// 클리핑 용도로 만들어진 간단한 폴리곤 구조체
 struct Triangle
 {
-    // 클리핑 용도로 만들어진 간단한 폴리곤 구조체
     DirectX::SimpleMath::Vector3 v0;
     DirectX::SimpleMath::Vector3 v1;
     DirectX::SimpleMath::Vector3 v2;
@@ -74,7 +74,7 @@ bool fEqual(const float a, const float b)
 
 Vector3 worldToView(const Vector3& pointWorld)
 {
-    // 월드 좌표계의 원점이 우리가 보는 화면의 중심이라고 가정(world->view transformation 생략, 추후 개선 예정)
+    // 월드 좌표계의 원점이 우리가 보는 화면의 중심이라고 가정(world->view transformation 생략)
     return pointWorld;
 }
 
@@ -125,7 +125,8 @@ float edgeFunction(const Vector2& v0, const Vector2& v1, const Vector2& point)
 
 float intersectPlaneAndVertex(const DirectX::SimpleMath::Vector4& plane, const DirectX::SimpleMath::Vector3& point)
 {
-    const float dist = plane.x * point.x + plane.y * point.y + plane.z * point.z + plane.w;
+    const float mul = plane.x * point.x + plane.y * point.y + plane.z * point.z;
+    const float dist = mul + plane.w;
     return dist;
 }
 
@@ -300,12 +301,12 @@ std::list<struct Triangle> splitTriangle(const DirectX::SimpleMath::Vector4& pla
     /*
     if(splitTri_inside.size() < 3)
     {
-        const EPlaceFromPlane topPlace = intersectPlaneAndTriangle(plane, tri);
+        const EPlaceFromPlane top = intersectPlaneAndTriangle(plane, tri);
         int bp = 0;
     }
     if (splitTri_inside.size() > 4 || splitTri_outside.size() > 5)
     {
-        const EPlaceFromPlane topPlace = intersectPlaneAndTriangle(plane, tri);
+        const EPlaceFromPlane top = intersectPlaneAndTriangle(plane, tri);
         int bp = 0;
     }
     std::cout << splitTri_inside.size() << ' ' << splitTri_outside.size() << '\n';
@@ -367,7 +368,9 @@ std::list<struct Triangle> splitTriangle(const DirectX::SimpleMath::Vector4& pla
 
 void clipTriangle(std::list<struct Triangle>& triangles)
 {
-    std::list<struct Triangle>::iterator eraseMark = triangles.end();
+    using namespace std;
+
+    list<struct Triangle>::iterator eraseMark = triangles.end();
     for (auto triangle = triangles.begin(); triangle != triangles.end(); ++triangle)
     {
         if (eraseMark != triangles.end())
@@ -376,63 +379,63 @@ void clipTriangle(std::list<struct Triangle>& triangles)
             eraseMark = triangles.end();
         }
 
-        const struct Triangle tri = *triangle;
+        const struct Triangle& tri = *triangle;
 
         // far plane 제외하고 클리핑을 수행
-        const Vector4 leftPlane = Vector4(1.0f, 0.0f, 0.0f, g_leftClip);
-        const EPlaceFromPlane leftPlace = intersectPlaneAndTriangle(leftPlane, tri);
-        if (leftPlace != EPlaceFromPlane::Inside)
+        const Vector4 nearClippingPlane = Vector4(0.0f, 0.0f, g_distEyeToScreen, -g_nearClip);
+        const EPlaceFromPlane nearPlane = intersectPlaneAndTriangle(nearClippingPlane, tri);
+        if (nearPlane != EPlaceFromPlane::Inside)
         {
             eraseMark = triangle;
-            if (leftPlace == EPlaceFromPlane::Middle)
+            if (nearPlane == EPlaceFromPlane::Middle)
             {
-                triangles.splice(triangles.end(), splitTriangle(leftPlane, tri));
+                triangles.splice(triangles.end(), splitTriangle(nearClippingPlane, tri));
             }
             continue;
         }
 
-        const Vector4 rightPlane = Vector4(-1.0f, 0.0f, 0.0f, g_rightClip);
-        const EPlaceFromPlane rightPlace = intersectPlaneAndTriangle(rightPlane, tri);
-        if (rightPlace != EPlaceFromPlane::Inside)
+        const Vector4 leftClippingPlane = Vector4(1.0f, 0.0f, 0.0f, g_leftClip);
+        const EPlaceFromPlane left = intersectPlaneAndTriangle(leftClippingPlane, tri);
+        if (left != EPlaceFromPlane::Inside)
         {
             eraseMark = triangle;
-            if (rightPlace == EPlaceFromPlane::Middle)
+            if (left == EPlaceFromPlane::Middle)
             {
-                triangles.splice(triangles.end(), splitTriangle(rightPlane, tri));
+                triangles.splice(triangles.end(), splitTriangle(leftClippingPlane, tri));
             }
             continue;
         }
-        const Vector4 topPlane = Vector4(0.0f, -1.0f, 0.0f, g_topClip);
-        const EPlaceFromPlane topPlace = intersectPlaneAndTriangle(topPlane, tri);
-        if (topPlace != EPlaceFromPlane::Inside)
+
+        const Vector4 rightClippingPlane = Vector4(-1.0f, 0.0f, 0.0f, g_rightClip);
+        const EPlaceFromPlane right = intersectPlaneAndTriangle(rightClippingPlane, tri);
+        if (right != EPlaceFromPlane::Inside)
         {
             eraseMark = triangle;
-            if (topPlace == EPlaceFromPlane::Middle)
+            if (right == EPlaceFromPlane::Middle)
             {
-                triangles.splice(triangles.end(), splitTriangle(topPlane, tri));
+                triangles.splice(triangles.end(), splitTriangle(rightClippingPlane, tri));
             }
             continue;
         }
-        const Vector4 bottomPlane = Vector4(0.0f, 1.0f, 0.0f, g_bottomClip);
-        const EPlaceFromPlane bottomPlace = intersectPlaneAndTriangle(bottomPlane, tri);
-        if (bottomPlace != EPlaceFromPlane::Inside)
+        const Vector4 topClippingPlane = Vector4(0.0f, -1.0f, 0.0f, g_topClip);
+        const EPlaceFromPlane top = intersectPlaneAndTriangle(topClippingPlane, tri);
+        if (top != EPlaceFromPlane::Inside)
         {
             eraseMark = triangle;
-            if (bottomPlace == EPlaceFromPlane::Middle)
+            if (top == EPlaceFromPlane::Middle)
             {
-                triangles.splice(triangles.end(), splitTriangle(bottomPlane, tri));
+                triangles.splice(triangles.end(), splitTriangle(topClippingPlane, tri));
             }
             continue;
         }
-        // 근평면 클리핑에 살짝 이슈가 있어서, 수정 예정입니다
-        const Vector4 nearPlane = Vector4(0.0f, 0.0f, 1.0f, 1.0f);
-        const EPlaceFromPlane nearPlace = intersectPlaneAndTriangle(nearPlane, tri);
-        if (nearPlace != EPlaceFromPlane::Inside)
+        const Vector4 bottomClippingPlane = Vector4(0.0f, 1.0f, 0.0f, g_bottomClip);
+        const EPlaceFromPlane bottom = intersectPlaneAndTriangle(bottomClippingPlane, tri);
+        if (bottom != EPlaceFromPlane::Inside)
         {
             eraseMark = triangle;
-            if (nearPlace == EPlaceFromPlane::Middle)
+            if (bottom == EPlaceFromPlane::Middle)
             {
-                triangles.splice(triangles.end(), splitTriangle(nearPlane, tri));
+                triangles.splice(triangles.end(), splitTriangle(bottomClippingPlane, tri));
             }
             continue;
         }
@@ -452,16 +455,16 @@ void DrawIndexedTriangle(const size_t startIndex)
     const size_t i1 = g_indexBuffer[startIndex + 1];
     const size_t i2 = g_indexBuffer[startIndex + 2];
 
-    const Vector3 rootV0 = worldToClip(g_vertexBuffer[i0]);
-    const Vector3 rootV1 = worldToClip(g_vertexBuffer[i1]);
-    const Vector3 rootV2 = worldToClip(g_vertexBuffer[i2]);
+    const Vector3 v0_clip = worldToClip(g_vertexBuffer[i0]);
+    const Vector3 v1_clip = worldToClip(g_vertexBuffer[i1]);
+    const Vector3 v2_clip = worldToClip(g_vertexBuffer[i2]);
 
-    const Vector2 rootV0_screen = clipToScreen(rootV0);
-    const Vector2 rootV1_screen = clipToScreen(rootV1);
-    const Vector2 rootV2_screen = clipToScreen(rootV2);
+    const Vector2 v0_screen = clipToScreen(v0_clip);
+    const Vector2 v1_screen = clipToScreen(v1_clip);
+    const Vector2 v2_screen = clipToScreen(v2_clip);
 
     // 삼각형 전체 넓이의 두 배, 음수일 수도 있음
-    const float area = edgeFunction(rootV0_screen, rootV1_screen, rootV2_screen);
+    const float area = edgeFunction(v0_screen, v1_screen, v2_screen);
 
     // 뒷면일 경우
     if (g_cullBackface && area < 0.0f)
@@ -470,29 +473,28 @@ void DrawIndexedTriangle(const size_t startIndex)
     }
 
     // clipping
-    // stl 리스트는 노드구조라서 마음에 들지 않지만
-    // sparse array를 쓰자니 이건 만들어야 할 것 같아서 그냥 리스트를 사용했습니다
+    // 이터레이터 보장되는게 이놈밖에 없나...
     std::list<struct Triangle> triangles;
-    triangles.push_back({ rootV0, rootV1, rootV2 });
+    triangles.push_back({ v0_clip, v1_clip, v2_clip });
     clipTriangle(triangles);
 
     /*const auto& c0 = g_colorBuffer[i0];
     const auto& c1 = g_colorBuffer[i1];
     const auto& c2 = g_colorBuffer[i2];*/
 
-    const auto& uv0 = g_uvBuffer[i0];
-    const auto& uv1 = g_uvBuffer[i1];
-    const auto& uv2 = g_uvBuffer[i2];
+    const Vector2& uv0 = g_uvBuffer[i0];
+    const Vector2& uv1 = g_uvBuffer[i1];
+    const Vector2& uv2 = g_uvBuffer[i2];
 
     // draw internal
     for (const auto& triangle : triangles)
     {
-        const Vector2 clipV0_Screen = clipToScreen(triangle.v0);
-        const Vector2 clipV1_Screen = clipToScreen(triangle.v1);
-        const Vector2 clipV2_Screen = clipToScreen(triangle.v2);
+        const Vector2 clipV0_screen = clipToScreen(triangle.v0);
+        const Vector2 clipV1_screen = clipToScreen(triangle.v1);
+        const Vector2 clipV2_screen = clipToScreen(triangle.v2);
 
-        const Vector2 bMin = Vector2::Min(Vector2::Min(clipV0_Screen, clipV1_Screen), clipV2_Screen);
-        const Vector2 bMax = Vector2::Max(Vector2::Max(clipV0_Screen, clipV1_Screen), clipV2_Screen);
+        const Vector2 bMin = Vector2::Min(Vector2::Min(clipV0_screen, clipV1_screen), clipV2_screen);
+        const Vector2 bMax = Vector2::Max(Vector2::Max(clipV0_screen, clipV1_screen), clipV2_screen);
 
         const auto xMin = size_t(std::clamp(std::floor(bMin.x), 0.0f, float(g_width - 1)));
         const auto yMin = size_t(std::clamp(std::floor(bMin.y), 0.0f, float(g_height - 1)));
@@ -507,9 +509,9 @@ void DrawIndexedTriangle(const size_t startIndex)
                 const Vector2 point = Vector2(float(x), float(y));
 
                 // 위에서 계산한 삼각형 전체 넓이 area를 재사용
-                float w0 = edgeFunction(rootV1_screen, rootV2_screen, point) / area;
-                float w1 = edgeFunction(rootV2_screen, rootV0_screen, point) / area;
-                float w2 = edgeFunction(rootV0_screen, rootV1_screen, point) / area;
+                float w0 = edgeFunction(v1_screen, v2_screen, point) / area;
+                float w1 = edgeFunction(v2_screen, v0_screen, point) / area;
+                float w2 = edgeFunction(v0_screen, v1_screen, point) / area;
 
                 if (w0 >= 0.0f && w1 >= 0.0f && w2 >= 0.0f)
                 {

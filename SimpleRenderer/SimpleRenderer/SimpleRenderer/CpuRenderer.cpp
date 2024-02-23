@@ -85,7 +85,7 @@ void CpuRenderer::Update()
 
 	cpuPipeline->SetObjects(objects);
 	cpuPipeline->SetLightType(lightType);
-	cpuPipeline->SetClippingPlane(leftClip, rightClip, topClip, bottomClip);
+	cpuPipeline->SetClippingPlane(leftClip, rightClip, topClip, bottomClip, nearClip);
 }
 
 void CpuRenderer::Render()
@@ -449,7 +449,7 @@ void CpuRenderer::updateGui()
 
 		ImGui::SliderFloat("Clipping Bottom", &bottomClip, -1.0f, 1.0f);
 
-		//ImGui::SliderFloat("Clipping Near", &nearClip, 0.0f, 1.0f);
+		ImGui::SliderFloat("Clipping Near", &nearClip, 0.0f, 1.0f);
 
 		ImGui::SliderAngle("Object RotationAboutX", &selectedMesh->Transform.rotationX);
 

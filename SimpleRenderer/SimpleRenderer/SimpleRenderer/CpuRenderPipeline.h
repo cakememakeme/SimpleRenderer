@@ -35,7 +35,7 @@ public:
 
     void SetLightType(const ELightType lightType);
 
-    void SetClippingPlane(const float leftClip, const float rightClip, const float topClip, const float bottomClip);
+    void SetClippingPlane(const float leftClip, const float rightClip, const float topClip, const float bottomClip, const float nearClip);
 
     std::vector<DirectX::SimpleMath::Vector4> Process();
 

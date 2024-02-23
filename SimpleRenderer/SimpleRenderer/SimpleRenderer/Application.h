@@ -19,8 +19,8 @@ enum class ERenderer
 class Application
 {
 private:
-	constexpr static int windowWidth = 1280;
-	constexpr static int windowHeight = 960;
+	constexpr static int windowWidth = 1024;
+	constexpr static int windowHeight = 600;
 
 	HWND mainWindowHandle;
 
