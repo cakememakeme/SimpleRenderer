@@ -40,7 +40,7 @@ void CpuRenderPipeline::Reset()
     g_depthBuffer.resize(g_displayBuffer.size());
     
     // 깊이는 최대 10.0f (-> 렌더 거리도 10.0f 이하)
-    fill(g_depthBuffer.begin(), g_depthBuffer.end(), 10.0f);
+    fill(g_depthBuffer.begin(), g_depthBuffer.end(), g_viewDistanceCulling);
 }
 
 void CpuRenderPipeline::SetObjects(const std::vector<std::shared_ptr<Object>>& receivedObjects)

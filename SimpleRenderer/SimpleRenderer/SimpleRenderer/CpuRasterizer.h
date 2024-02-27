@@ -92,7 +92,7 @@ DirectX::SimpleMath::Vector3 viewToClip(const Vector3& pointView)
     }
 
     const float aspect = static_cast<float>(g_width) / g_height;
-    const Vector3 pointNDC = Vector3(pointProj.x / aspect, pointProj.y, pointProj.z);
+    const Vector3 pointNDC = Vector3(pointProj.x / aspect, pointProj.y, pointProj.z / g_viewDistanceCulling);
 
     return pointNDC;
 }
@@ -450,21 +450,20 @@ void clipTriangle(std::list<struct Triangle>& triangles)
 
 void DrawIndexedTriangle(const size_t startIndex)
 {
-    // backface culling
     const size_t i0 = g_indexBuffer[startIndex];
     const size_t i1 = g_indexBuffer[startIndex + 1];
     const size_t i2 = g_indexBuffer[startIndex + 2];
 
-    const Vector3 v0_clip = worldToClip(g_vertexBuffer[i0]);
-    const Vector3 v1_clip = worldToClip(g_vertexBuffer[i1]);
-    const Vector3 v2_clip = worldToClip(g_vertexBuffer[i2]);
+    const Vector3 rootV0_clip = worldToClip(g_vertexBuffer[i0]);
+    const Vector3 rootV1_clip = worldToClip(g_vertexBuffer[i1]);
+    const Vector3 rootV2_clip = worldToClip(g_vertexBuffer[i2]);
 
-    const Vector2 v0_screen = clipToScreen(v0_clip);
-    const Vector2 v1_screen = clipToScreen(v1_clip);
-    const Vector2 v2_screen = clipToScreen(v2_clip);
+    const Vector2 rootV0_screen = clipToScreen(rootV0_clip);
+    const Vector2 rootV1_screen = clipToScreen(rootV1_clip);
+    const Vector2 rootV2_screen = clipToScreen(rootV2_clip);
 
     // 삼각형 전체 넓이의 두 배, 음수일 수도 있음
-    const float area = edgeFunction(v0_screen, v1_screen, v2_screen);
+    const float area = edgeFunction(rootV0_screen, rootV1_screen, rootV2_screen);
 
     // 뒷면일 경우
     if (g_cullBackface && area < 0.0f)
@@ -475,7 +474,7 @@ void DrawIndexedTriangle(const size_t startIndex)
     // clipping
     // 이터레이터 보장되는게 이놈밖에 없나...
     std::list<struct Triangle> triangles;
-    triangles.push_back({ v0_clip, v1_clip, v2_clip });
+    triangles.push_back({ rootV0_clip, rootV1_clip, rootV2_clip });
     clipTriangle(triangles);
 
     /*const auto& c0 = g_colorBuffer[i0];
@@ -489,17 +488,17 @@ void DrawIndexedTriangle(const size_t startIndex)
     // draw internal
     for (const auto& triangle : triangles)
     {
-        const Vector2 clipV0_screen = clipToScreen(triangle.v0);
-        const Vector2 clipV1_screen = clipToScreen(triangle.v1);
-        const Vector2 clipV2_screen = clipToScreen(triangle.v2);
+        const Vector2 v0_screen = clipToScreen(triangle.v0);
+        const Vector2 v1_screen = clipToScreen(triangle.v1);
+        const Vector2 v2_screen = clipToScreen(triangle.v2);
 
-        const Vector2 bMin = Vector2::Min(Vector2::Min(clipV0_screen, clipV1_screen), clipV2_screen);
-        const Vector2 bMax = Vector2::Max(Vector2::Max(clipV0_screen, clipV1_screen), clipV2_screen);
+        const Vector2 leftTopPos = Vector2::Min(Vector2::Min(v0_screen, v1_screen), v2_screen);
+        const Vector2 rightBotPos = Vector2::Max(Vector2::Max(v0_screen, v1_screen), v2_screen);
 
-        const auto xMin = size_t(std::clamp(std::floor(bMin.x), 0.0f, float(g_width - 1)));
-        const auto yMin = size_t(std::clamp(std::floor(bMin.y), 0.0f, float(g_height - 1)));
-        const auto xMax = size_t(std::clamp(std::ceil(bMax.x), 0.0f, float(g_width - 1)));
-        const auto yMax = size_t(std::clamp(std::ceil(bMax.y), 0.0f, float(g_height - 1)));
+        const auto xMin = size_t(std::clamp(std::floor(leftTopPos.x), 0.0f, float(g_width - 1)));
+        const auto yMin = size_t(std::clamp(std::floor(leftTopPos.y), 0.0f, float(g_height - 1)));
+        const auto xMax = size_t(std::clamp(std::ceil(rightBotPos.x), 0.0f, float(g_width - 1)));
+        const auto yMax = size_t(std::clamp(std::ceil(rightBotPos.y), 0.0f, float(g_height - 1)));
 
         // Primitive 보간 후 Pixel(Fragment) Shader로 넘긴다
         for (size_t y = yMin; y <= yMax; y++)
@@ -513,6 +512,7 @@ void DrawIndexedTriangle(const size_t startIndex)
                 float w1 = edgeFunction(v2_screen, v0_screen, point) / area;
                 float w2 = edgeFunction(v0_screen, v1_screen, point) / area;
 
+                // backface culling
                 if (w0 >= 0.0f && w1 >= 0.0f && w2 >= 0.0f)
                 {
                     // Perspective-Correct Interpolation

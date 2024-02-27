@@ -112,11 +112,13 @@ bool Application::Initialize(const ERenderer type)
         ////std::shared_ptr<Mesh> mesh = make_shared<Mesh>(GeometryGenerator::MakePlane());
         //if (mesh)
         //{
+        //    constexpr float toRadian = 3.141592f / 180.0f;
         //    //mesh->TestBox();
-        //    mesh->Transform.translation = Vector3(0.0f, -0.8f, 1.0f);
-        //    mesh->Transform.rotationX = -3.141592f * 30.0f / 180.0f;
-        //    mesh->Transform.rotationY = 0.0f;
-        //    mesh->Transform.scale = Vector3(1.0f, 1.0f, 1.0f);
+        //    mesh->Transform.translation = Vector3(0.0f, -0.3f, 1.0f);
+        //    mesh->Transform.rotationX = 60.0f * toRadian;
+        //    mesh->Transform.rotationY = 40.0f * toRadian;
+        //    mesh->Transform.rotationZ = -20.0f * toRadian;
+        //    mesh->Transform.scale = Vector3(0.5f, 0.5f, 0.5f);
         //    objects.push_back(mesh);
         //}
     }

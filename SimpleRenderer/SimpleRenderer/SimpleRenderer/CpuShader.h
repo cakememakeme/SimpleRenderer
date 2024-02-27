@@ -72,6 +72,7 @@ bool g_cullBackface;
 bool g_bUsePerspectiveProjection;
 // 눈과 화면의 거리 (조절 가능)
 float g_distEyeToScreen;
+float g_viewDistanceCulling = 10.0f;
 // 현재 사용하는 조명 (0: directional, 1: point, 2: spot)
 int g_lightType;
 int g_width;

@@ -413,7 +413,8 @@ bool CpuRenderer::initGui()
 	ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
 	io.DisplaySize = ImVec2(static_cast<float>(width), static_cast<float>(height));
-
+	
+	ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
 	ImGui::StyleColorsLight();
 
 	if (!ImGui_ImplDX11_Init(device.Get(), context.Get()))
