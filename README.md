@@ -11,7 +11,7 @@ https://github.com/cakememakeme/ProjectCpuRenderer/ 에서 코드 이전
 
 기본적인 라이트 구성이며, 위 GUI에 구성되어 있는 기능 이외의 추가적인 구현은 하지 않았습니다
 
-개괄적인 클래스 구성도는 다음과 같습니다
+대략적인 클래스 구성도는 다음과 같습니다
 ![클래스 다이어그램](https://github.com/cakememakeme/ProjectCpuRender/assets/73391410/ed219aa8-ef3d-436d-a30c-cc0d993fb919)
 ★ 주요 기능은 CpuRenderPipeline.h/cpp, CpuRasterizer.h/cpp 클래스에서 수행됩니다
 
