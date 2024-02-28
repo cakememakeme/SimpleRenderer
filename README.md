@@ -1,6 +1,7 @@
 # SimpleRenderer
 이런 저런 렌더링 공부용 렌더러
 
+https://github.com/cakememakeme/ProjectCpuRenderer/ 에서 코드 이전
 
 ------------------
 # CPU Renderer
