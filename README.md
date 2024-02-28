@@ -16,14 +16,6 @@ https://github.com/cakememakeme/ProjectCpuRenderer/ 에서 코드 이전
 ★ 주요 기능은 CpuRenderPipeline.h/cpp, CpuRasterizer.h/cpp 클래스에서 수행됩니다
 
 
-      처음에 생각했던 구조와는 좀 달라져서, 복잡해졌습니다.(시작할 땐 이렇지 않았습니다)
-      
-      간단하게 넘겨보려고 더 난잡한 코드가 만들어지기도 했구요
-      
-      마치...
-
-
-
 ★ 필요 프로그램&라이브러리
 1. Visual Studio 2022
 
