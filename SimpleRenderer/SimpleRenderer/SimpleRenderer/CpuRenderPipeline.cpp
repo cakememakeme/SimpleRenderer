@@ -23,10 +23,10 @@ bool CpuRenderPipeline::Initialize(const int bufferWidth, const int bufferHeight
 
     const int bufferSize = g_width * g_height;
 
-    // Ãâ·Â¿ë ¹öÆÛ ÃÊ±âÈ­(@todo. swapchain ±¸Çö...? ¾Æ¸¶ ¾ÈÇÏÁö ¾ÊÀ»±î)
+    // ì¶œë ¥ìš© ë²„í¼ ì´ˆê¸°í™”(@todo. swapchain êµ¬í˜„...? ì•„ë§ˆ ì•ˆí•˜ì§€ ì•Šì„ê¹Œ)
     g_displayBuffer.resize(bufferSize);
 
-    // ±íÀÌ ¹öÆÛ ÃÊ±âÈ­
+    // ê¹Šì´ ë²„í¼ ì´ˆê¸°í™”
     g_depthBuffer.resize(bufferSize, 0.0f);
 
     return true;
@@ -34,12 +34,12 @@ bool CpuRenderPipeline::Initialize(const int bufferWidth, const int bufferHeight
 
 void CpuRenderPipeline::Reset()
 {
-    std::fill(g_displayBuffer.begin(), g_displayBuffer.end(), Vector4(0.45f, 0.5f, 0.45f, 1.0f)); // ±¹¹æ»ö ¹è°æ
+    std::fill(g_displayBuffer.begin(), g_displayBuffer.end(), Vector4{ 0.45f, 0.5f, 0.45f, 1.0f }); // êµ­ë°©ìƒ‰ ë°°ê²½
     
-    // ±íÀÌ ¹öÆÛ ÃÊ±âÈ­
+    // ê¹Šì´ ë²„í¼ ì´ˆê¸°í™”
     g_depthBuffer.resize(g_displayBuffer.size());
     
-    // ±íÀÌ´Â ÃÖ´ë 10.0f (-> ·»´õ °Å¸®µµ 10.0f ÀÌÇÏ)
+    // ê¹Šì´ëŠ” ìµœëŒ€ 10.0f (-> ë Œë” ê±°ë¦¬ë„ 10.0f ì´í•˜)
     fill(g_depthBuffer.begin(), g_depthBuffer.end(), g_viewDistanceCulling);
 }
 
@@ -91,7 +91,7 @@ void CpuRenderPipeline::drawMeshes()
         return;
     }
 
-    // ½ÇÁ¦ ÆÄÀÌÇÁ¶óÀÎÀº
+    // ì‹¤ì œ íŒŒì´í”„ë¼ì¸ì€
     // 1. Input assembler
     // 2. Vertex shader
     // 3. Tessellation
@@ -99,10 +99,10 @@ void CpuRenderPipeline::drawMeshes()
     // 5. Rasterization
     // 6. Fragment shader
     // 7. Color blending
-    // ±âÁØÀ¸·Î µÇ¾î ÀÖ´Ù(Vulkan tutorial ±âÁØ)
-    // ¿ø·¡´ë·Î¶ó¸é, Vertex buffer/Index buffer¿¡ ÀÖ´Â ¹öÅØ½º¸¦ 3°³·Î ¹­¾î¼­(Input assemble) 
-    // ¹­ÀÎ ´ÜÀ§¸¸Å­ ÆÄÀÌÇÁ¶óÀÎ¿¡ ÅÂ¿ö º¸³»´Â°Ô ¸ÂÀ¸³ª
-    // ·»´õ¸µ¿¡ ´ëÇØ¼­ Á÷°üÀûÀ¸·Î ÆÄ¾Ç °¡´ÉÇÏ°Ô²û, ¹öÆÛ ´ÜÀ§°¡ ¾Æ´Ñ ¸Ş½Ã ´ÜÀ§·Î ³ª´²¼­ º¸³½´Ù
+    // ê¸°ì¤€ìœ¼ë¡œ ë˜ì–´ ìˆë‹¤(Vulkan tutorial ê¸°ì¤€)
+    // ì›ë˜ëŒ€ë¡œë¼ë©´, Vertex buffer/Index bufferì— ìˆëŠ” ë²„í…ìŠ¤ë¥¼ 3ê°œë¡œ ë¬¶ì–´ì„œ(Input assemble) 
+    // ë¬¶ì¸ ë‹¨ìœ„ë§Œí¼ íŒŒì´í”„ë¼ì¸ì— íƒœì›Œ ë³´ë‚´ëŠ”ê²Œ ë§ìœ¼ë‚˜
+    // ë Œë”ë§ì— ëŒ€í•´ì„œ ì§ê´€ì ìœ¼ë¡œ íŒŒì•… ê°€ëŠ¥í•˜ê²Œë”, ë²„í¼ ë‹¨ìœ„ê°€ ì•„ë‹Œ ë©”ì‹œ ë‹¨ìœ„ë¡œ ë‚˜ëˆ ì„œ ë³´ë‚¸ë‹¤
     for (const auto mesh : meshes)
     {
         if (!mesh)
@@ -117,11 +117,11 @@ void CpuRenderPipeline::drawMeshes()
             VsInput vsInput;
             vsInput.Position = g_vertexBuffer[i];
             vsInput.normal = g_normalBuffer[i];
-            // ¹öÅØ½º transform¿¡ ¹«°üÇÑ °ª. vertex shader ¿¬»ê¿¡ ÇÊ¿äÇÑ °æ¿ì ³Ñ°ÜÁØ´Ù
+            // ë²„í…ìŠ¤ transformì— ë¬´ê´€í•œ ê°’. vertex shader ì—°ì‚°ì— í•„ìš”í•œ ê²½ìš° ë„˜ê²¨ì¤€ë‹¤
             //vsInput.color = colorBuffer[i];
             //vsInput.uv = uvBuffer[i]; 
 
-            // vertex shader ´Ü°è
+            // vertex shader ë‹¨ê³„
             VsOutput vsOutput = CpuShader::CpuVertexShader(vsInput);
 
             g_vertexBuffer[i] = vsOutput.Position;
@@ -130,8 +130,8 @@ void CpuRenderPipeline::drawMeshes()
             //uvBuffer[i] = vsOutput.uv;
         }
 
-        // rasterize ´Ü°è
-        for (size_t i = 0; i < g_indexBuffer.size(); i += 3) // 3°³ ¾¿ ¹­¾î¼­ Àü´Ş, (Input assemble) ¿ø·¡ ÀÌ°Ô vertex shaderº¸´Ù ¸ÕÀú ÀÌ·ïÁ®¾ß ÇÑ´Ù
+        // rasterize ë‹¨ê³„
+        for (size_t i = 0; i < g_indexBuffer.size(); i += 3) // 3ê°œ ì”© ë¬¶ì–´ì„œ ì „ë‹¬, (Input assemble) ì›ë˜ ì´ê²Œ vertex shaderë³´ë‹¤ ë¨¼ì € ì´ë¤„ì ¸ì•¼ í•œë‹¤
         {
             CpuRasterizer::DrawIndexedTriangle(i);
         }

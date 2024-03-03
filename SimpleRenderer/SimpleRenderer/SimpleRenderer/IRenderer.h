@@ -14,6 +14,8 @@ public:
 
 	virtual bool Initialize(HWND mainWindow, const int bufferWidth, const int bufferHeight) = 0;
 
+	virtual void OnResizeWindow(const int newWidth, const int newHeight) = 0;
+
 	virtual bool SetObjects(std::vector<std::shared_ptr<Object>>&& receivedObjects) = 0;
 
 	virtual void Update() = 0;

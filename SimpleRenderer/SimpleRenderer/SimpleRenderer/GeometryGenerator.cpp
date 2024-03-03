@@ -60,11 +60,11 @@ Mesh GeometryGenerator::MakeBox()
     vector<Vector3> positions;
     vector<Vector3> colors;
     vector<Vector3> normals;
-    vector<Vector2> texcoords; // ≈ÿΩ∫√Á ¡¬«•
+    vector<Vector2> texcoords; // ÌÖçÏä§Ï∂∞ Ï¢åÌëú
 
     const float scale = 1.0f;
 
-    // ¿≠∏È
+    // ÏúóÎ©¥
     positions.push_back(Vector3(-1.0f, 1.0f, -1.0f) * scale);
     positions.push_back(Vector3(-1.0f, 1.0f, 1.0f) * scale);
     positions.push_back(Vector3(1.0f, 1.0f, 1.0f) * scale);
@@ -82,7 +82,7 @@ Mesh GeometryGenerator::MakeBox()
     texcoords.push_back(Vector2(1.0f, 1.0f));
     texcoords.push_back(Vector2(0.0f, 1.0f));
 
-    // æ∆∑ß∏È
+    // ÏïÑÎû´Î©¥
     positions.push_back(Vector3(-1.0f, -1.0f, -1.0f) * scale);
     positions.push_back(Vector3(1.0f, -1.0f, -1.0f) * scale);
     positions.push_back(Vector3(1.0f, -1.0f, 1.0f) * scale);
@@ -100,7 +100,7 @@ Mesh GeometryGenerator::MakeBox()
     texcoords.push_back(Vector2(1.0f, 1.0f));
     texcoords.push_back(Vector2(0.0f, 1.0f));
 
-    // æ’∏È
+    // ÏïûÎ©¥
     positions.push_back(Vector3(-1.0f, -1.0f, -1.0f) * scale);
     positions.push_back(Vector3(-1.0f, 1.0f, -1.0f) * scale);
     positions.push_back(Vector3(1.0f, 1.0f, -1.0f) * scale);
@@ -118,7 +118,7 @@ Mesh GeometryGenerator::MakeBox()
     texcoords.push_back(Vector2(1.0f, 1.0f));
     texcoords.push_back(Vector2(0.0f, 1.0f));
 
-    // µﬁ∏È
+    // Îí∑Î©¥
     positions.push_back(Vector3(-1.0f, -1.0f, 1.0f) * scale);
     positions.push_back(Vector3(1.0f, -1.0f, 1.0f) * scale);
     positions.push_back(Vector3(1.0f, 1.0f, 1.0f) * scale);
@@ -136,7 +136,7 @@ Mesh GeometryGenerator::MakeBox()
     texcoords.push_back(Vector2(1.0f, 1.0f));
     texcoords.push_back(Vector2(0.0f, 1.0f));
 
-    // øﬁ¬ 
+    // ÏôºÏ™Ω
     positions.push_back(Vector3(-1.0f, -1.0f, 1.0f) * scale);
     positions.push_back(Vector3(-1.0f, 1.0f, 1.0f) * scale);
     positions.push_back(Vector3(-1.0f, 1.0f, -1.0f) * scale);
@@ -154,7 +154,7 @@ Mesh GeometryGenerator::MakeBox()
     texcoords.push_back(Vector2(1.0f, 1.0f));
     texcoords.push_back(Vector2(0.0f, 1.0f));
 
-    // ø¿∏•¬ 
+    // Ïò§Î•∏Ï™Ω
     positions.push_back(Vector3(1.0f, -1.0f, 1.0f) * scale);
     positions.push_back(Vector3(1.0f, -1.0f, -1.0f) * scale);
     positions.push_back(Vector3(1.0f, 1.0f, -1.0f) * scale);
@@ -182,12 +182,12 @@ Mesh GeometryGenerator::MakeBox()
     }
 
     meshData.Indices = {
-        0,  1,  2,  0,  2,  3,  // ¿≠∏È
-        4,  5,  6,  4,  6,  7,  // æ∆∑ß∏È
-        8,  9,  10, 8,  10, 11, // æ’∏È
-        12, 13, 14, 12, 14, 15, // µﬁ∏È
-        16, 17, 18, 16, 18, 19, // øﬁ¬ 
-        20, 21, 22, 20, 22, 23  // ø¿∏•¬ 
+        0,  1,  2,  0,  2,  3,  // ÏúóÎ©¥
+        4,  5,  6,  4,  6,  7,  // ÏïÑÎû´Î©¥
+        8,  9,  10, 8,  10, 11, // ÏïûÎ©¥
+        12, 13, 14, 12, 14, 15, // Îí∑Î©¥
+        16, 17, 18, 16, 18, 19, // ÏôºÏ™Ω
+        20, 21, 22, 20, 22, 23  // Ïò§Î•∏Ï™Ω
     };
 
     return meshData;
@@ -198,11 +198,11 @@ Mesh GeometryGenerator::MakePlane()
     vector<Vector3> positions;
     vector<Vector3> colors;
     vector<Vector3> normals;
-    vector<Vector2> texcoords; // ≈ÿΩ∫√Á ¡¬«•
+    vector<Vector2> texcoords; // ÌÖçÏä§Ï∂∞ Ï¢åÌëú
 
     const float scale = 1.0f;
 
-    // æ’∏È
+    // ÏïûÎ©¥
     positions.push_back(Vector3(-1.0f, -1.0f, -1.0f) * scale);
     positions.push_back(Vector3(-1.0f, 1.0f, -1.0f) * scale);
     positions.push_back(Vector3(1.0f, 1.0f, -1.0f) * scale);
@@ -244,7 +244,7 @@ std::tuple<std::vector<Vertex>, std::vector<uint16_t>> GeometryGenerator::MakeBo
 
     const float scale = 0.5f;
 
-    // ¿≠∏È
+    // ÏúóÎ©¥
     positions.push_back(Vector3(-1.0f, 1.0f, -1.0f) * scale);
     positions.push_back(Vector3(-1.0f, 1.0f, 1.0f) * scale);
     positions.push_back(Vector3(1.0f, 1.0f, 1.0f) * scale);
@@ -258,7 +258,7 @@ std::tuple<std::vector<Vertex>, std::vector<uint16_t>> GeometryGenerator::MakeBo
     normals.push_back(Vector3(0.0f, 1.0f, 0.0f));
     normals.push_back(Vector3(0.0f, 1.0f, 0.0f));
 
-    // æ∆∑ß∏È
+    // ÏïÑÎû´Î©¥
     positions.push_back(Vector3(-1.0f, -1.0f, -1.0f) * scale);
     positions.push_back(Vector3(-1.0f, -1.0f, 1.0f) * scale);
     positions.push_back(Vector3(1.0f, -1.0f, 1.0f) * scale);
@@ -272,7 +272,7 @@ std::tuple<std::vector<Vertex>, std::vector<uint16_t>> GeometryGenerator::MakeBo
     normals.push_back(Vector3(0.0f, -1.0f, 0.0f));
     normals.push_back(Vector3(0.0f, -1.0f, 0.0f));
 
-    // æ’∏È
+    // ÏïûÎ©¥
     positions.push_back(Vector3(-1.0f, -1.0f, -1.0f) * scale);
     positions.push_back(Vector3(-1.0f, 1.0f, -1.0f) * scale);
     positions.push_back(Vector3(1.0f, 1.0f, -1.0f) * scale);
@@ -286,7 +286,7 @@ std::tuple<std::vector<Vertex>, std::vector<uint16_t>> GeometryGenerator::MakeBo
     normals.push_back(Vector3(0.0f, 0.0f, -1.0f));
     normals.push_back(Vector3(0.0f, 0.0f, -1.0f));
 
-    // µﬁ∏È
+    // Îí∑Î©¥
     positions.push_back(Vector3(-1.0f, -1.0f, 1.0f) * scale);
     positions.push_back(Vector3(-1.0f, 1.0f, 1.0f) * scale);
     positions.push_back(Vector3(1.0f, 1.0f, 1.0f) * scale);
@@ -300,7 +300,7 @@ std::tuple<std::vector<Vertex>, std::vector<uint16_t>> GeometryGenerator::MakeBo
     normals.push_back(Vector3(0.0f, 0.0f, 1.0f));
     normals.push_back(Vector3(0.0f, 0.0f, 1.0f));
 
-    // øﬁ¬ 
+    // ÏôºÏ™Ω
     positions.push_back(Vector3(-1.0f, -1.0f, 1.0f) * scale);
     positions.push_back(Vector3(-1.0f, 1.0f, 1.0f) * scale);
     positions.push_back(Vector3(-1.0f, 1.0f, -1.0f) * scale);
@@ -314,7 +314,7 @@ std::tuple<std::vector<Vertex>, std::vector<uint16_t>> GeometryGenerator::MakeBo
     normals.push_back(Vector3(-1.0f, 0.0f, 0.0f));
     normals.push_back(Vector3(-1.0f, 0.0f, 0.0f));
 
-    // ø¿∏•¬ 
+    // Ïò§Î•∏Ï™Ω
     positions.push_back(Vector3(1.0f, -1.0f, 1.0f) * scale);
     positions.push_back(Vector3(1.0f, 1.0f, 1.0f) * scale);
     positions.push_back(Vector3(1.0f, 1.0f, -1.0f) * scale);
@@ -339,12 +339,12 @@ std::tuple<std::vector<Vertex>, std::vector<uint16_t>> GeometryGenerator::MakeBo
 
     vector<uint16_t> indices =
     {
-        0,  1,  2,  0,  2,  3,  // ¿≠∏È
-        4,  5,  6,  4,  6,  7,  // æ∆∑ß∏È
-        8,  9, 10,  8, 10, 11,  // µﬁ∏È
-       12, 13, 14, 12, 14, 15,  // æ’∏È
-       16, 17, 18, 16, 18, 19,  // øﬁ¬ 
-       20, 21, 22, 20, 22, 23,  // ø¿∏•¬ 
+        0,  1,  2,  0,  2,  3,  // ÏúóÎ©¥
+        4,  5,  6,  4,  6,  7,  // ÏïÑÎû´Î©¥
+        8,  9, 10,  8, 10, 11,  // Îí∑Î©¥
+       12, 13, 14, 12, 14, 15,  // ÏïûÎ©¥
+       16, 17, 18, 16, 18, 19,  // ÏôºÏ™Ω
+       20, 21, 22, 20, 22, 23,  // Ïò§Î•∏Ï™Ω
     };
 
     return tuple{ vertices, indices };
@@ -355,11 +355,11 @@ std::tuple<std::vector<Vertex>, std::vector<uint16_t>> GeometryGenerator::MakeSq
     vector<Vector3> positions;
     vector<Vector3> colors;
     vector<Vector3> normals;
-    vector<Vector2> texcoords; // ≈ÿΩ∫√Á ¡¬«•
+    vector<Vector2> texcoords; // ÌÖçÏä§Ï∂∞ Ï¢åÌëú
 
     const float scale = 1.0f;
 
-    // æ’∏È
+    // ÏïûÎ©¥
     positions.push_back(Vector3(-1.0f, 1.0f, 0.0f) * scale);
     positions.push_back(Vector3(1.0f, 1.0f, 0.0f) * scale);
     positions.push_back(Vector3(1.0f, -1.0f, 0.0f) * scale);
@@ -386,7 +386,7 @@ std::tuple<std::vector<Vertex>, std::vector<uint16_t>> GeometryGenerator::MakeSq
         vertices.push_back(v);
     }
     vector<uint16_t> indices = {
-        0, 1, 2, 0, 2, 3, // æ’∏È
+        0, 1, 2, 0, 2, 3, // ÏïûÎ©¥
     };
 
     return tuple{ vertices, indices };

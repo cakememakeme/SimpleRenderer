@@ -16,7 +16,7 @@ struct ModelViewProjectionConstantBuffer
 	DirectX::SimpleMath::Matrix Projection;
 };
 
-// ÁÖÀÇ:
+// ì£¼ì˜:
 // For a constant buffer (BindFlags of D3D11_BUFFER_DESC set to
 // D3D11_BIND_CONSTANT_BUFFER), you must set the ByteWidth value of
 // D3D11_BUFFER_DESC in multiples of 16, and less than or equal to
@@ -35,7 +35,6 @@ static_assert((sizeof(PixelShaderConstantBuffer) % 16) == 0, "Constant Buffer si
 
 class D3d11Renderer : public IRenderer
 {
-	bool bUsePerspectiveProjection = true;
 	DirectX::SimpleMath::Vector3 modelTranslation = DirectX::SimpleMath::Vector3(0.0f);
 	DirectX::SimpleMath::Vector3 modelRotation = DirectX::SimpleMath::Vector3(0.0f);
 	DirectX::SimpleMath::Vector3 modelScaling = DirectX::SimpleMath::Vector3(0.5f);
@@ -45,21 +44,24 @@ class D3d11Renderer : public IRenderer
 	float projFovAngleY = 70.0f;
 	float nearZ = 0.01f;
 	float farZ = 15.0f;
-	float aspect = 0.0f;
+	UINT massSamplingCount = 0;
+	bool bUsePerspectiveProjection = true;
+	bool bViewportNeedUpdate = false;
 
-	// À©µµ¿ì ÇÚµé
+	// ìœˆë„ìš° í•¸ë“¤
 	HWND mainWindowHandle;
 	int width;
 	int height;
+	int guiWidth;
 
 	D3D11_VIEWPORT screenViewport;
 
 	Microsoft::WRL::ComPtr<ID3D11Device> device;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> context;
-	//´Ù¸¥ ½º¿ÒÃ¼ÀÎµé ½áµµ ¹®Á¦°¡ »ı±ä´Ù... ¿ÖÀÌ·¯´Â°Å¾ß ´ëÃ¼
+	//ë‹¤ë¥¸ ìŠ¤ì™‘ì²´ì¸ë“¤ ì¨ë„ ë¬¸ì œê°€ ìƒê¸´ë‹¤... ì™œì´ëŸ¬ëŠ”ê±°ì•¼ ëŒ€ì²´
 	//Microsoft::WRL::ComPtr<IDXGISwapChain1> swapChain;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> swapChain;
-	// ¿©±â¼± ComPtr¸¦ ¾È¾²¸é ¿ÀÈ÷·Á ¹®Á¦°¡ »ı±ä´Ù -_-;
+	// ì—¬ê¸°ì„  ComPtrë¥¼ ì•ˆì“°ë©´ ì˜¤íˆë ¤ ë¬¸ì œê°€ ìƒê¸´ë‹¤ -_-;
 	//ID3D11RenderTargetView* renderTargetView;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> renderTargetView;
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterizerState;
@@ -81,11 +83,12 @@ public:
 	D3d11Renderer();
 	virtual ~D3d11Renderer();
 
-
-	// IRendererÀ»(¸¦) ÅëÇØ »ó¼ÓµÊ
+	// IRendererì„(ë¥¼) í†µí•´ ìƒì†ë¨
 	virtual bool Create() override;
 
 	virtual bool Initialize(HWND mainWindow, const int bufferWidth, const int bufferHeight) override;
+
+	virtual void OnResizeWindow(const int newWidth, const int newHeight) override;
 
 	virtual bool SetObjects(std::vector<std::shared_ptr<Object>>&& receivedObjects) override;
 
@@ -96,8 +99,9 @@ public:
 	virtual void OnPostRender() override;
 
 	virtual bool Reset() override;
+	// ~IRendererì„(ë¥¼) í†µí•´ ìƒì†ë¨
 
-private:
+protected:
 	bool initDirect3D();
 	bool initGui();
 
@@ -109,13 +113,13 @@ private:
 
 		D3D11_BUFFER_DESC bufferDesc;
 		ZeroMemory(&bufferDesc, sizeof(bufferDesc));
-		bufferDesc.Usage = D3D11_USAGE_IMMUTABLE; // ÃÊ±âÈ­ ÈÄ º¯°æX
+		bufferDesc.Usage = D3D11_USAGE_IMMUTABLE; // ì´ˆê¸°í™” í›„ ë³€ê²½X
 		bufferDesc.ByteWidth = UINT(sizeof(T_VERTEX) * vertices.size());
 		bufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		bufferDesc.CPUAccessFlags = 0; // 0 if no CPU access is necessary.
 		bufferDesc.StructureByteStride = sizeof(T_VERTEX);
 
-		D3D11_SUBRESOURCE_DATA vertexBufferData = { 0 }; // MS ¿¹Á¦¿¡¼­ ÃÊ±âÈ­ÇÏ´Â ¹æ½Ä
+		D3D11_SUBRESOURCE_DATA vertexBufferData = { 0 }; // MS ì˜ˆì œì—ì„œ ì´ˆê¸°í™”í•˜ëŠ” ë°©ì‹
 		vertexBufferData.pSysMem = vertices.data();
 		vertexBufferData.SysMemPitch = 0;
 		vertexBufferData.SysMemSlicePitch = 0;
@@ -133,7 +137,7 @@ private:
 	template <typename T_CONSTANT>
 	bool createConstantBuffer(const T_CONSTANT& constantBufferData, Microsoft::WRL::ComPtr<ID3D11Buffer>& constantBuffer)
 	{
-		// ÁÖÀÇ:
+		// ì£¼ì˜:
 		// For a constant buffer (BindFlags of D3D11_BUFFER_DESC set to
 		// D3D11_BIND_CONSTANT_BUFFER), you must set the ByteWidth value of
 		// D3D11_BUFFER_DESC in multiples of 16, and less than or equal to
@@ -171,6 +175,16 @@ private:
 
 	bool createPixelShader(const std::wstring& filename, Microsoft::WRL::ComPtr<ID3D11PixelShader>& pixelShader);
 
+	bool createSwapChain();
+
+	bool createRenderTargetView();
+
+	bool createDepthBuffer();
+
+	void setViewport();
+
+	void setGuiWidth(const int newWidth);
+
 	void updateGui();
 
 	void update(float dt);
@@ -192,6 +206,8 @@ private:
 
 	void render();
 
-	float getAspectRatio() const { return float(width) / height; }
+private:
+	constexpr float getAspectRatio() const { return float(width - guiWidth) / height; }
+
 };
 

@@ -23,19 +23,51 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd,
                                                              WPARAM wParam,
                                                              LPARAM lParam);
 
+Application* g_app = nullptr;
 
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+    if (g_app)
+    {
+        return g_app->MessageProcedure(hWnd, msg, wParam, lParam);
+    }
+
+    return ::DefWindowProc(hWnd, msg, wParam, lParam);
+}
+
+Application::Application()
+    : mainWindowHandle(nullptr)
+{
+    g_app = this;
+}
+
+Application::~Application()
+{
+    g_app = nullptr;
+}
+
+LRESULT Application::MessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
     if (ImGui_ImplWin32_WndProcHandler(hWnd, msg, wParam, lParam))
     {
         return true;
     }
 
-    switch (msg) 
+    if (!renderer)
+    {
+        //std::cout << "the renderer does not exist." << std::endl;
+        return ::DefWindowProc(hWnd, msg, wParam, lParam);
+    }
+
+    switch (msg)
     {
     case WM_SIZE:
-        // Reset and resize swapchain
-        return 0;
+    {
+        int width = (int)LOWORD(lParam);
+        int height = (int)HIWORD(lParam);
+        renderer->OnResizeWindow(width, height);
+    }
+    break;
     case WM_SYSCOMMAND:
         if ((wParam & 0xfff0) == SC_KEYMENU) // Disable ALT application menu
             return 0;
@@ -60,15 +92,6 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
     return ::DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
-Application::Application()
-{
-
-}
-
-Application::~Application()
-{
-}
-
 bool Application::Initialize(const ERenderer type)
 {
     if (!initMainWindows())
@@ -88,48 +111,7 @@ bool Application::Initialize(const ERenderer type)
         return false;
     }
 
-    vector<shared_ptr<Object>> objects = std::vector<std::shared_ptr<Object>>();
-    
-    // ∏ﬁΩ√ º≥¡§
-    std::vector<Mesh> meshes = GeometryGenerator::ReadFromFile("./groza/", "Wp_Gun_Groza.fbx");
-    objects.reserve(meshes.size());
-    for (const Mesh& mesh : meshes)
-    {
-        std::shared_ptr<Mesh> newMesh = make_shared<Mesh>(mesh);
-        newMesh->Transform.rotationX += 0.15f;
-        newMesh->Transform.translation.y -= 0.2f;
-        newMesh->Transform.translation.z += 0.2f;
-        newMesh->Transform.scale = Vector3(2.0f);
-        objects.push_back(newMesh);
-    }
-    
-    //≈◊Ω∫∆Æ
-    {
-        ////π⁄Ω∫
-        //std::shared_ptr<Mesh> mesh = make_shared<Mesh>(GeometryGenerator::MakeBox());
-        //
-        ////∆Ú∏È
-        ////std::shared_ptr<Mesh> mesh = make_shared<Mesh>(GeometryGenerator::MakePlane());
-        //if (mesh)
-        //{
-        //    constexpr float toRadian = 3.141592f / 180.0f;
-        //    //mesh->TestBox();
-        //    mesh->Transform.translation = Vector3(0.0f, -0.3f, 1.0f);
-        //    mesh->Transform.rotationX = 60.0f * toRadian;
-        //    mesh->Transform.rotationY = 40.0f * toRadian;
-        //    mesh->Transform.rotationZ = -20.0f * toRadian;
-        //    mesh->Transform.scale = Vector3(0.5f, 0.5f, 0.5f);
-        //    objects.push_back(mesh);
-        //}
-    }
-
-    std::shared_ptr<Light> light = make_shared<Light>();
-    if (light)
-    {
-        light->Strength = Vector3(1.0f);
-        light->Direction = Vector3(0.0f, -0.5f, 0.5f);
-        objects.push_back(light);
-    }
+    vector<shared_ptr<Object>> objects = generateObjects();
 
     renderer->SetObjects(std::move(objects));
     
@@ -159,9 +141,54 @@ int Application::Run()
 	return 0;
 }
 
+std::vector<std::shared_ptr<Object>> Application::generateObjects()
+{
+    vector<shared_ptr<Object>> objects = std::vector<std::shared_ptr<Object>>();
+
+    // Î©îÏãú ÏÑ§Ï†ï
+    std::vector<Mesh> meshes = GeometryGenerator::ReadFromFile("./groza/", "Wp_Gun_Groza.fbx");
+    objects.reserve(meshes.size());
+    for (const Mesh& mesh : meshes)
+    {
+        std::shared_ptr<Mesh> newMesh = make_shared<Mesh>(mesh);
+        newMesh->Transform.rotationX += 0.15f;
+        newMesh->Transform.translation.y -= 0.2f;
+        newMesh->Transform.translation.z += 0.2f;
+        newMesh->Transform.scale = Vector3(2.0f);
+        objects.push_back(newMesh);
+    }
+
+    //ÌÖåÏä§Ìä∏
+    {
+        ////Î∞ïÏä§
+        //std::shared_ptr<Mesh> mesh = make_shared<Mesh>(GeometryGenerator::MakeBox());
+        //
+        ////ÌèâÎ©¥
+        ////std::shared_ptr<Mesh> mesh = make_shared<Mesh>(GeometryGenerator::MakePlane());
+        //if (mesh)
+        //{
+        //    constexpr float toRadian = 3.141592f / 180.0f;
+        //    //mesh->TestBox();
+        //    mesh->Transform.translation = Vector3(0.0f, -0.3f, 1.0f);
+        //    mesh->Transform.rotationX = 60.0f * toRadian;
+        //    mesh->Transform.rotationY = 40.0f * toRadian;
+        //    mesh->Transform.rotationZ = -20.0f * toRadian;
+        //    mesh->Transform.scale = Vector3(0.5f, 0.5f, 0.5f);
+        //    objects.push_back(mesh);
+        //}
+    }
+
+    std::shared_ptr<Light> light = make_shared<Light>();
+    light->Strength = Vector3(1.0f);
+    light->Direction = Vector3(0.0f, -0.5f, 0.5f);
+    objects.push_back(light);
+
+    return objects;
+}
+
 bool Application::initMainWindows()
 {
-    // wndclass ¿‘∑¬
+    // wndclass ÏûÖÎ†•
     WNDCLASSEX windowClass = { sizeof(WNDCLASSEX),
         CS_CLASSDC,
         WndProc,
@@ -180,14 +207,14 @@ bool Application::initMainWindows()
         return false;
     }
 
-    // ¿©µµøÏ Ω«¡¶ ≈©±‚(«ÿªÛµµ) ¡∂¡§
+    // ÏúàÎèÑÏö∞ Ïã§Ï†ú ÌÅ¨Í∏∞(Ìï¥ÏÉÅÎèÑ) Ï°∞Ï†ï
     RECT windowRect = { 0, 0, windowWidth, windowHeight };
     if (!AdjustWindowRect(&windowRect, WS_OVERLAPPEDWINDOW, FALSE))
     {
         std::cout << "AdjustWindowRect() failed." << std::endl;
     }
 
-    // √¢ ª˝º∫
+    // Ï∞Ω ÏÉùÏÑ±
     mainWindowHandle = CreateWindow(windowClass.lpszClassName,
         L"Simple CpuRenderer",
         WS_OVERLAPPEDWINDOW,

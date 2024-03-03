@@ -15,7 +15,7 @@ using namespace DirectX::PackedVector;
 namespace CpuRasterizer
 {
 
-// Å¬¸®ÇÎ ¿ëµµ·Î ¸¸µé¾îÁø °£´ÜÇÑ Æú¸®°ï ±¸Á¶Ã¼
+// í´ë¦¬í•‘ ìš©ë„ë¡œ ë§Œë“¤ì–´ì§„ ê°„ë‹¨í•œ í´ë¦¬ê³¤ êµ¬ì¡°ì²´
 struct Triangle
 {
     DirectX::SimpleMath::Vector3 v0;
@@ -26,9 +26,9 @@ struct Triangle
 enum class EPlaceFromPlane
 {
     None = 0,
-    Inside, //normal ¹æÇâ
-    Outside,//normal ¹İ´ë¹æÇâ
-    Middle  //Æò¸é¿¡ Á¢ÇÔ
+    Inside, //normal ë°©í–¥
+    Outside,//normal ë°˜ëŒ€ë°©í–¥
+    Middle  //í‰ë©´ì— ì ‘í•¨
 };
 
 bool fEqual(const float a, const float b)
@@ -37,30 +37,30 @@ bool fEqual(const float a, const float b)
 }
 
 //public:
-    // »ï°¢ÇüÀ» ÇÏ³ª¸¸ ±×¸®´Â ÇÔ¼ö
+    // ì‚¼ê°í˜•ì„ í•˜ë‚˜ë§Œ ê·¸ë¦¬ëŠ” í•¨ìˆ˜
     // Rasterize!
     void DrawIndexedTriangle(const size_t startIndex);
 
 //private:
-    // view space -> clip space º¯È¯
+    // view space -> clip space ë³€í™˜
     DirectX::SimpleMath::Vector3 worldToClip(const DirectX::SimpleMath::Vector3& pointWorld);
 
     DirectX::SimpleMath::Vector3 worldToView(const DirectX::SimpleMath::Vector3& pointWorld);
 
     DirectX::SimpleMath::Vector3 viewToClip(const DirectX::SimpleMath::Vector3& pointView);
 
-    // clip space -> screen space º¯È¯
+    // clip space -> screen space ë³€í™˜
     DirectX::SimpleMath::Vector2 clipToScreen(const DirectX::SimpleMath::Vector3& pointClip);
 
     float edgeFunction(const DirectX::SimpleMath::Vector2& v0, const DirectX::SimpleMath::Vector2& v1, const DirectX::SimpleMath::Vector2& point);
 
-    // Æò¸é°ú Á¡ÀÇ ±³Â÷
+    // í‰ë©´ê³¼ ì ì˜ êµì°¨
     float intersectPlaneAndVertex(const DirectX::SimpleMath::Vector4& plane, const DirectX::SimpleMath::Vector3& point);
 
-    // Æò¸é°ú »ï°¢ÇüÀÇ ±³Â÷
+    // í‰ë©´ê³¼ ì‚¼ê°í˜•ì˜ êµì°¨
     EPlaceFromPlane intersectPlaneAndTriangle(const DirectX::SimpleMath::Vector4& plane, const struct Triangle& triangle);
 
-    // Æò¸é°ú ¼±ºĞÀÇ ±³Â÷
+    // í‰ë©´ê³¼ ì„ ë¶„ì˜ êµì°¨
     bool intersectPlaneAndLine(DirectX::SimpleMath::Vector3& outIntersectPoint,
         const DirectX::SimpleMath::Vector4& plane, const DirectX::SimpleMath::Vector3& pointA, const DirectX::SimpleMath::Vector3& pointB);
 
@@ -74,17 +74,17 @@ bool fEqual(const float a, const float b)
 
 Vector3 worldToView(const Vector3& pointWorld)
 {
-    // ¿ùµå ÁÂÇ¥°èÀÇ ¿øÁ¡ÀÌ ¿ì¸®°¡ º¸´Â È­¸éÀÇ Áß½ÉÀÌ¶ó°í °¡Á¤(world->view transformation »ı·«)
+    // ì›”ë“œ ì¢Œí‘œê³„ì˜ ì›ì ì´ ìš°ë¦¬ê°€ ë³´ëŠ” í™”ë©´ì˜ ì¤‘ì‹¬ì´ë¼ê³  ê°€ì •(world->view transformation ìƒëµ)
     return pointWorld;
 }
 
 DirectX::SimpleMath::Vector3 viewToClip(const Vector3& pointView)
 {
-    // Á¤Åõ¿µ(Orthographic projection)
+    // ì •íˆ¬ì˜(Orthographic projection)
     Vector3 pointProj = Vector3(pointView.x, pointView.y, pointView.z);
 
-    // ¿ø±ÙÅõ¿µ(Perspective projection)
-    // ¿ø±ÙÅõ¿µµµ Çà·Ä·Î Ç¥ÇöÇÒ ¼ö ÀÖ½À´Ï´Ù.
+    // ì›ê·¼íˆ¬ì˜(Perspective projection)
+    // ì›ê·¼íˆ¬ì˜ë„ í–‰ë ¬ë¡œ í‘œí˜„í•  ìˆ˜ ìˆìŠµë‹ˆë‹¤.
     if (g_bUsePerspectiveProjection)
     {
         const float scale = g_distEyeToScreen / (g_distEyeToScreen + pointView.z);
@@ -92,34 +92,34 @@ DirectX::SimpleMath::Vector3 viewToClip(const Vector3& pointView)
     }
 
     const float aspect = static_cast<float>(g_width) / g_height;
-    const Vector3 pointNDC = Vector3(pointProj.x / aspect, pointProj.y, pointProj.z / g_viewDistanceCulling);
+    const Vector3& pointNDC = Vector3{ pointProj.x / aspect, pointProj.y, pointProj.z / g_viewDistanceCulling };
 
     return pointNDC;
 }
 
 Vector3 worldToClip(const Vector3& pointWorld)
 {
-    // @todo. Ä«¸Ş¶ó ±â´É °³¼±ÀÌ µé¾î°¡¸é VertexShader·Î ÀÌµ¿
-    Vector3 pointView = worldToView(pointWorld);
-    Vector3 pointClip = viewToClip(pointView);
+    // @todo. ì¹´ë©”ë¼ ê¸°ëŠ¥ ê°œì„ ì´ ë“¤ì–´ê°€ë©´ VertexShaderë¡œ ì´ë™
+    const Vector3& pointView = worldToView(pointWorld);
+    const Vector3& pointClip = viewToClip(pointView);
     return pointClip;
 }
 
 DirectX::SimpleMath::Vector2 clipToScreen(const DirectX::SimpleMath::Vector3& pointClip)
 {
-    // ·¹½ºÅÍ ÁÂÇ¥ÀÇ ¹üÀ§ [-0.5, width - 1 + 0.5] x [-0.5, height - 1 + 0.5]
+    // ë ˆìŠ¤í„° ì¢Œí‘œì˜ ë²”ìœ„ [-0.5, width - 1 + 0.5] x [-0.5, height - 1 + 0.5]
     const float xScale = 2.0f / g_width;
     const float yScale = 2.0f / g_height;
 
-    // NDC -> ·¹½ºÅÍ È­¸é ÁÂÇ¥°è(screen space)
-    // ÁÖÀÇ: yÁÂÇ¥ »óÇÏ¹İÀü
+    // NDC -> ë ˆìŠ¤í„° í™”ë©´ ì¢Œí‘œê³„(screen space)
+    // ì£¼ì˜: yì¢Œí‘œ ìƒí•˜ë°˜ì „
     return Vector2((pointClip.x + 1.0f) / xScale - 0.5f, (1.0f - pointClip.y) / yScale - 0.5f);
 }
 
 float edgeFunction(const Vector2& v0, const Vector2& v1, const Vector2& point)
 {
-    const Vector2 a = v1 - v0;
-    const Vector2 b = point - v0;
+    const Vector2& a = v1 - v0;
+    const Vector2& b = point - v0;
     return a.x * b.y - a.y * b.x;
 }
 
@@ -134,12 +134,12 @@ EPlaceFromPlane intersectPlaneAndTriangle(const DirectX::SimpleMath::Vector4& pl
 {
     const struct Triangle& tri = triangle;
 
-    // ¿ëÃ¥ 64p, Æò¸é ±¸Ãà Âü°í
+    // ìš©ì±… 64p, í‰ë©´ êµ¬ì¶• ì°¸ê³ 
     const float i0 = intersectPlaneAndVertex(plane, tri.v0);
     const float i1 = intersectPlaneAndVertex(plane, tri.v1);
     const float i2 = intersectPlaneAndVertex(plane, tri.v2);
 
-    // ¼¼ Á¡ÀÌ ¸ğµÎ Æò¸é À§¿¡ ÀÖÀ» ¶§, inside¸¦ ¸ÕÀú ÆÇ´ÜÇÏ¸é ¹®Á¦°¡ »ı±é´Ï´Ù
+    // ì„¸ ì ì´ ëª¨ë‘ í‰ë©´ ìœ„ì— ìˆì„ ë•Œ, insideë¥¼ ë¨¼ì € íŒë‹¨í•˜ë©´ ë¬¸ì œê°€ ìƒê¹ë‹ˆë‹¤
     // outside
 
     if ((fEqual(i0, 0.0f) || i0 < 0.0f) && (fEqual(i1, 0.0f) || i1 < 0.0f) && (fEqual(i2, 0.0f) || i2 < 0.0f))
@@ -154,8 +154,8 @@ EPlaceFromPlane intersectPlaneAndTriangle(const DirectX::SimpleMath::Vector4& pl
     }
 
     // split
-    // ±³Â÷Çß´Ù´Â ÆÇ´ÜÀº ¿­¸° ±¸°£(open interval)ÀÌ¾î¾ß ÇÕ´Ï´Ù. 
-    // ´İÈù ±¸°£ÀÌ¸é Á¡ÀÌ Æò¸é¿¡ Á¢ÇÒ ¶§ ¹®Á¦°¡ »ı±é´Ï´Ù
+    // êµì°¨í–ˆë‹¤ëŠ” íŒë‹¨ì€ ì—´ë¦° êµ¬ê°„(open interval)ì´ì–´ì•¼ í•©ë‹ˆë‹¤. 
+    // ë‹«íŒ êµ¬ê°„ì´ë©´ ì ì´ í‰ë©´ì— ì ‘í•  ë•Œ ë¬¸ì œê°€ ìƒê¹ë‹ˆë‹¤
     return EPlaceFromPlane::Middle;
 }
 
@@ -176,18 +176,18 @@ EPlaceFromPlane findVertexPlace(const float distance)
 bool intersectPlaneAndLine(Vector3& outIntersectPoint,
     const Vector4& plane, const Vector3& pointA, const Vector3& pointB)
 {
-    const Vector3 n(plane.x, plane.y, plane.z);
-    const Vector3 t(pointB - pointA);
+    const Vector3& n{ plane.x, plane.y, plane.z };
+    const Vector3& t{ pointB - pointA };
     const float dist = n.Dot(t);
     const EPlaceFromPlane place = findVertexPlace(dist);
     if (place == EPlaceFromPlane::Middle)
     {
-        // µÎ º¤ÅÍ°¡ ¼öÁ÷ÇÏ´Â °æ¿ì (dot(n, t) == 0)
+        // ë‘ ë²¡í„°ê°€ ìˆ˜ì§í•˜ëŠ” ê²½ìš° (dot(n, t) == 0)
         return false;
     }
     if (std::fabs(dist) < std::numeric_limits<float>::epsilon())
     {
-        // ¹Ì¼¼ÇÏ°Ô split
+        // ë¯¸ì„¸í•˜ê²Œ split
         return false;
     }
 
@@ -195,8 +195,8 @@ bool intersectPlaneAndLine(Vector3& outIntersectPoint,
     const float bDot = pointB.Dot(n);
     const float scale = (-plane.w - aDot) / (bDot - aDot);
 
-    // ¸¶Âù°¡Áö·Î, *±³Â÷Çß´Ù´Â ÆÇ´Ü*Àº ¿­¸° ±¸°£(open interval)ÀÌ¾î¾ß ÇÕ´Ï´Ù. 
-    // ´İÈù ±¸°£ÀÌ¸é Á¡ÀÌ Æò¸é¿¡ Á¢ÇÒ ¶§ ¹®Á¦°¡ »ı±é´Ï´Ù
+    // ë§ˆì°¬ê°€ì§€ë¡œ, *êµì°¨í–ˆë‹¤ëŠ” íŒë‹¨*ì€ ì—´ë¦° êµ¬ê°„(open interval)ì´ì–´ì•¼ í•©ë‹ˆë‹¤. 
+    // ë‹«íŒ êµ¬ê°„ì´ë©´ ì ì´ í‰ë©´ì— ì ‘í•  ë•Œ ë¬¸ì œê°€ ìƒê¹ë‹ˆë‹¤
     // 0.0f < scale < 1.0f
     if (fEqual(scale, 0.0f) || scale < 0.0f)
     {
@@ -207,15 +207,15 @@ bool intersectPlaneAndLine(Vector3& outIntersectPoint,
         return false;
     }
 
-    // Æò¸é°ú Á÷¼±ÀÇ ±³Â÷Á¡ ±¸ÇÏ±â
+    // í‰ë©´ê³¼ ì§ì„ ì˜ êµì°¨ì  êµ¬í•˜ê¸°
     outIntersectPoint = pointA + (scale * (pointB - pointA));
     return true;
 }
 
 std::list<struct Triangle> splitTriangle(const DirectX::SimpleMath::Vector4& plane, const Triangle& triangle)
 {
-    // ÁÖÀÇ: ¹öÅØ½ºÀÇ ½Ã°è¹æÇâ ¼ø¼­(CW)´Â À¯ÁöµÇ³ª, ÁÂÇÏ´Ü -> ÁÂ»ó´Ü -> ¿ì»ó´ÜÀÇ ¼ø¼­´Â ±úÁö°Ô µË´Ï´Ù
-    // ÇÑ Ä­¾¿ ¹Ğ¸³´Ï´Ù
+    // ì£¼ì˜: ë²„í…ìŠ¤ì˜ ì‹œê³„ë°©í–¥ ìˆœì„œ(CW)ëŠ” ìœ ì§€ë˜ë‚˜, ì¢Œí•˜ë‹¨ -> ì¢Œìƒë‹¨ -> ìš°ìƒë‹¨ì˜ ìˆœì„œëŠ” ê¹¨ì§€ê²Œ ë©ë‹ˆë‹¤
+    // í•œ ì¹¸ì”© ë°€ë¦½ë‹ˆë‹¤
     const struct Triangle& tri = triangle;
     std::array<Vector3, 3> tris = { tri.v0, tri.v1, tri.v2 };
     std::vector<Vector3> splitTri_inside;
@@ -381,8 +381,8 @@ void clipTriangle(std::list<struct Triangle>& triangles)
 
         const struct Triangle& tri = *triangle;
 
-        // far plane Á¦¿ÜÇÏ°í Å¬¸®ÇÎÀ» ¼öÇà
-        const Vector4 nearClippingPlane = Vector4(0.0f, 0.0f, g_distEyeToScreen, -g_nearClip);
+        // far plane ì œì™¸í•˜ê³  í´ë¦¬í•‘ì„ ìˆ˜í–‰
+        const Vector4& nearClippingPlane = Vector4{ 0.0f, 0.0f, g_distEyeToScreen, -g_nearClip };
         const EPlaceFromPlane nearPlane = intersectPlaneAndTriangle(nearClippingPlane, tri);
         if (nearPlane != EPlaceFromPlane::Inside)
         {
@@ -394,7 +394,7 @@ void clipTriangle(std::list<struct Triangle>& triangles)
             continue;
         }
 
-        const Vector4 leftClippingPlane = Vector4(1.0f, 0.0f, 0.0f, g_leftClip);
+        const Vector4& leftClippingPlane = Vector4{ 1.0f, 0.0f, 0.0f, g_leftClip };
         const EPlaceFromPlane left = intersectPlaneAndTriangle(leftClippingPlane, tri);
         if (left != EPlaceFromPlane::Inside)
         {
@@ -406,7 +406,7 @@ void clipTriangle(std::list<struct Triangle>& triangles)
             continue;
         }
 
-        const Vector4 rightClippingPlane = Vector4(-1.0f, 0.0f, 0.0f, g_rightClip);
+        const Vector4& rightClippingPlane = Vector4{ -1.0f, 0.0f, 0.0f, g_rightClip };
         const EPlaceFromPlane right = intersectPlaneAndTriangle(rightClippingPlane, tri);
         if (right != EPlaceFromPlane::Inside)
         {
@@ -417,7 +417,7 @@ void clipTriangle(std::list<struct Triangle>& triangles)
             }
             continue;
         }
-        const Vector4 topClippingPlane = Vector4(0.0f, -1.0f, 0.0f, g_topClip);
+        const Vector4& topClippingPlane = Vector4{ 0.0f, -1.0f, 0.0f, g_topClip };
         const EPlaceFromPlane top = intersectPlaneAndTriangle(topClippingPlane, tri);
         if (top != EPlaceFromPlane::Inside)
         {
@@ -428,7 +428,7 @@ void clipTriangle(std::list<struct Triangle>& triangles)
             }
             continue;
         }
-        const Vector4 bottomClippingPlane = Vector4(0.0f, 1.0f, 0.0f, g_bottomClip);
+        const Vector4& bottomClippingPlane = Vector4{ 0.0f, 1.0f, 0.0f, g_bottomClip };
         const EPlaceFromPlane bottom = intersectPlaneAndTriangle(bottomClippingPlane, tri);
         if (bottom != EPlaceFromPlane::Inside)
         {
@@ -454,25 +454,25 @@ void DrawIndexedTriangle(const size_t startIndex)
     const size_t i1 = g_indexBuffer[startIndex + 1];
     const size_t i2 = g_indexBuffer[startIndex + 2];
 
-    const Vector3 rootV0_clip = worldToClip(g_vertexBuffer[i0]);
-    const Vector3 rootV1_clip = worldToClip(g_vertexBuffer[i1]);
-    const Vector3 rootV2_clip = worldToClip(g_vertexBuffer[i2]);
+    const Vector3& rootV0_clip = worldToClip(g_vertexBuffer[i0]);
+    const Vector3& rootV1_clip = worldToClip(g_vertexBuffer[i1]);
+    const Vector3& rootV2_clip = worldToClip(g_vertexBuffer[i2]);
 
-    const Vector2 rootV0_screen = clipToScreen(rootV0_clip);
-    const Vector2 rootV1_screen = clipToScreen(rootV1_clip);
-    const Vector2 rootV2_screen = clipToScreen(rootV2_clip);
+    const Vector2& rootV0_screen = clipToScreen(rootV0_clip);
+    const Vector2& rootV1_screen = clipToScreen(rootV1_clip);
+    const Vector2& rootV2_screen = clipToScreen(rootV2_clip);
 
-    // »ï°¢Çü ÀüÃ¼ ³ĞÀÌÀÇ µÎ ¹è, À½¼öÀÏ ¼öµµ ÀÖÀ½
+    // ì‚¼ê°í˜• ì „ì²´ ë„“ì´ì˜ ë‘ ë°°, ìŒìˆ˜ì¼ ìˆ˜ë„ ìˆìŒ
     const float area = edgeFunction(rootV0_screen, rootV1_screen, rootV2_screen);
 
-    // µŞ¸éÀÏ °æ¿ì
+    // ë’·ë©´ì¼ ê²½ìš°
     if (g_cullBackface && area < 0.0f)
     {
         return;
     }
 
     // clipping
-    // ÀÌÅÍ·¹ÀÌÅÍ º¸ÀåµÇ´Â°Ô ÀÌ³ğ¹Û¿¡ ¾ø³ª...
+    // ì´í„°ë ˆì´í„° ë³´ì¥ë˜ëŠ”ê²Œ ì´ë†ˆë°–ì— ì—†ë‚˜...
     std::list<struct Triangle> triangles;
     triangles.push_back({ rootV0_clip, rootV1_clip, rootV2_clip });
     clipTriangle(triangles);
@@ -488,26 +488,26 @@ void DrawIndexedTriangle(const size_t startIndex)
     // draw internal
     for (const auto& triangle : triangles)
     {
-        const Vector2 v0_screen = clipToScreen(triangle.v0);
-        const Vector2 v1_screen = clipToScreen(triangle.v1);
-        const Vector2 v2_screen = clipToScreen(triangle.v2);
+        const Vector2& v0_screen = clipToScreen(triangle.v0);
+        const Vector2& v1_screen = clipToScreen(triangle.v1);
+        const Vector2& v2_screen = clipToScreen(triangle.v2);
 
-        const Vector2 leftTopPos = Vector2::Min(Vector2::Min(v0_screen, v1_screen), v2_screen);
-        const Vector2 rightBotPos = Vector2::Max(Vector2::Max(v0_screen, v1_screen), v2_screen);
+        const Vector2& leftTopPos = Vector2::Min(Vector2::Min(v0_screen, v1_screen), v2_screen);
+        const Vector2& rightBotPos = Vector2::Max(Vector2::Max(v0_screen, v1_screen), v2_screen);
 
         const auto xMin = size_t(std::clamp(std::floor(leftTopPos.x), 0.0f, float(g_width - 1)));
         const auto yMin = size_t(std::clamp(std::floor(leftTopPos.y), 0.0f, float(g_height - 1)));
         const auto xMax = size_t(std::clamp(std::ceil(rightBotPos.x), 0.0f, float(g_width - 1)));
         const auto yMax = size_t(std::clamp(std::ceil(rightBotPos.y), 0.0f, float(g_height - 1)));
 
-        // Primitive º¸°£ ÈÄ Pixel(Fragment) Shader·Î ³Ñ±ä´Ù
+        // Primitive ë³´ê°„ í›„ Pixel(Fragment) Shaderë¡œ ë„˜ê¸´ë‹¤
         for (size_t y = yMin; y <= yMax; y++)
         {
             for (size_t x = xMin; x <= xMax; x++)
             {
-                const Vector2 point = Vector2(float(x), float(y));
+                const Vector2& point = Vector2(float(x), float(y));
 
-                // À§¿¡¼­ °è»êÇÑ »ï°¢Çü ÀüÃ¼ ³ĞÀÌ area¸¦ Àç»ç¿ë
+                // ìœ„ì—ì„œ ê³„ì‚°í•œ ì‚¼ê°í˜• ì „ì²´ ë„“ì´ areaë¥¼ ì¬ì‚¬ìš©
                 float w0 = edgeFunction(v1_screen, v2_screen, point) / area;
                 float w1 = edgeFunction(v2_screen, v0_screen, point) / area;
                 float w2 = edgeFunction(v0_screen, v1_screen, point) / area;
@@ -516,24 +516,24 @@ void DrawIndexedTriangle(const size_t startIndex)
                 if (w0 >= 0.0f && w1 >= 0.0f && w2 >= 0.0f)
                 {
                     // Perspective-Correct Interpolation
-                    // OpenGL ±¸Çö
+                    // OpenGL êµ¬í˜„
                     // https://stackoverflow.com/questions/24441631/how-exactly-does-opengl-do-perspectively-correct-linear-interpolation
 
                     const float z0 = g_vertexBuffer[i0].z + g_distEyeToScreen;
                     const float z1 = g_vertexBuffer[i1].z + g_distEyeToScreen;
                     const float z2 = g_vertexBuffer[i2].z + g_distEyeToScreen;
 
-                    const Vector3 p0 = g_vertexBuffer[i0];
-                    const Vector3 p1 = g_vertexBuffer[i1];
-                    const Vector3 p2 = g_vertexBuffer[i2];
+                    const Vector3& p0 = g_vertexBuffer[i0];
+                    const Vector3& p1 = g_vertexBuffer[i1];
+                    const Vector3& p2 = g_vertexBuffer[i2];
 
-                    // µŞ¸éÀÏ °æ¿ì¿¡µµ ½¦ÀÌµùÀÌ °¡´ÉÇÏµµ·Ï normalÀ» ¹İ´ë·Î
-                    /*const Vector3 n0 = area < 0.0f ? -g_normalBuffer[i0] : g_normalBuffer[i0];
-                    const Vector3 n1 = area < 0.0f ? -g_normalBuffer[i1] : g_normalBuffer[i1];
-                    const Vector3 n2 = area < 0.0f ? -g_normalBuffer[i2] : g_normalBuffer[i2];*/
-                    const Vector3 n0 = g_normalBuffer[i0];
-                    const Vector3 n1 = g_normalBuffer[i1];
-                    const Vector3 n2 = g_normalBuffer[i2];
+                    // ë’·ë©´ì¼ ê²½ìš°ì—ë„ ì‰ì´ë”©ì´ ê°€ëŠ¥í•˜ë„ë¡ normalì„ ë°˜ëŒ€ë¡œ
+                    /*const Vector3& n0 = area < 0.0f ? -g_normalBuffer[i0] : g_normalBuffer[i0];
+                    const Vector3& n1 = area < 0.0f ? -g_normalBuffer[i1] : g_normalBuffer[i1];
+                    const Vector3& n2 = area < 0.0f ? -g_normalBuffer[i2] : g_normalBuffer[i2];*/
+                    const Vector3& n0 = g_normalBuffer[i0];
+                    const Vector3& n1 = g_normalBuffer[i1];
+                    const Vector3& n2 = g_normalBuffer[i2];
 
                     if (g_bUsePerspectiveProjection)
                     {
@@ -549,8 +549,8 @@ void DrawIndexedTriangle(const size_t startIndex)
                     }
 
                     const float depth = w0 * z0 + w1 * z1 + w2 * z2;
-                    // const Vector3 color = w0 * c0 + w1 * c1 + w2 * c2;
-                    const Vector2 uv = w0 * uv0 + w1 * uv1 + w2 * uv2;
+                    // const Vector3& color = w0 * c0 + w1 * c1 + w2 * c2;
+                    const Vector2& uv = w0 * uv0 + w1 * uv1 + w2 * uv2;
 
                     if (depth < g_depthBuffer[x + g_width * y])
                     {

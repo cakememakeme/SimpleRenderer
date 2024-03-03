@@ -26,8 +26,8 @@ struct ShaderConstants
 
 struct VsInput
 {
-    // CPU¿¡¼­ GPU·Î º¸³»´Â µ¥ÀÌÅÍ´Â ÀûÀ» ¼ö·Ï ÁÁ±â ¶§¹®¿¡
-    // Vector4 ´ë½Å¿¡ Vector3 »ç¿ë
+    // CPUì—ì„œ GPUë¡œ ë³´ë‚´ëŠ” ë°ì´í„°ëŠ” ì ì„ ìˆ˜ë¡ ì¢‹ê¸° ë•Œë¬¸ì—
+    // Vector4 ëŒ€ì‹ ì— Vector3 ì‚¬ìš©
     DirectX::SimpleMath::Vector3 Position;
     DirectX::SimpleMath::Vector3 normal;
     //DirectX::SimpleMath::Vector3 color;
@@ -50,9 +50,9 @@ struct PsInput
     DirectX::SimpleMath::Vector2 uv;
 };
 
-// GPU¿¡¼­ ³»ºÎÀûÀ¸·Î »ç¿ëÇÏ´Â ¸Ş¸ğ¸®¶ó°í »ı°¢ÇÕ½Ã´Ù.
+// GPUì—ì„œ ë‚´ë¶€ì ìœ¼ë¡œ ì‚¬ìš©í•˜ëŠ” ë©”ëª¨ë¦¬ë¼ê³  ìƒê°í•©ì‹œë‹¤.
 
-ShaderConstants g_constants; // ½¦ÀÌ´õ »ó¼ö
+ShaderConstants g_constants; // ì‰ì´ë” ìƒìˆ˜
 std::vector<size_t> g_indexBuffer;
 std::vector<DirectX::SimpleMath::Vector4> g_displayBuffer;
 std::vector<float> g_depthBuffer;
@@ -61,19 +61,19 @@ std::vector<DirectX::SimpleMath::Vector3> g_normalBuffer;
 std::vector<DirectX::SimpleMath::Vector3> g_colorBuffer;
 std::vector<DirectX::SimpleMath::Vector2> g_uvBuffer;
 
-// ~GPU¿¡¼­ ³»ºÎÀûÀ¸·Î »ç¿ëÇÏ´Â ¸Ş¸ğ¸®¶ó°í »ı°¢ÇÕ½Ã´Ù.
+// ~GPUì—ì„œ ë‚´ë¶€ì ìœ¼ë¡œ ì‚¬ìš©í•˜ëŠ” ë©”ëª¨ë¦¬ë¼ê³  ìƒê°í•©ì‹œë‹¤.
 
-// gui¿¡¼­ Á¶Àı °¡´ÉÇÑ ÆÄ¶ó¹ÌÅÍ ¸ñ·Ï
+// guiì—ì„œ ì¡°ì ˆ ê°€ëŠ¥í•œ íŒŒë¼ë¯¸í„° ëª©ë¡
 
 Light g_light;
-// Clockwise°¡ ¾Õ¸é
+// Clockwiseê°€ ì•ë©´
 bool g_cullBackface;
-// Á¤Åõ¿µ(ortho) vs ¿ø±Ù(perspective)Åõ¿µ
+// ì •íˆ¬ì˜(ortho) vs ì›ê·¼(perspective)íˆ¬ì˜
 bool g_bUsePerspectiveProjection;
-// ´«°ú È­¸éÀÇ °Å¸® (Á¶Àı °¡´É)
+// ëˆˆê³¼ í™”ë©´ì˜ ê±°ë¦¬ (ì¡°ì ˆ ê°€ëŠ¥)
 float g_distEyeToScreen;
 float g_viewDistanceCulling = 10.0f;
-// ÇöÀç »ç¿ëÇÏ´Â Á¶¸í (0: directional, 1: point, 2: spot)
+// í˜„ì¬ ì‚¬ìš©í•˜ëŠ” ì¡°ëª… (0: directional, 1: point, 2: spot)
 int g_lightType;
 int g_width;
 int g_height;
@@ -83,7 +83,7 @@ float g_topClip;
 float g_bottomClip;
 float g_nearClip;
 
-// ~gui¿¡¼­ Á¶Àı °¡´ÉÇÑ ÆÄ¶ó¹ÌÅÍ ¸ñ·Ï
+// ~guiì—ì„œ ì¡°ì ˆ ê°€ëŠ¥í•œ íŒŒë¼ë¯¸í„° ëª©ë¡
 
 namespace CpuShader
 {
@@ -123,10 +123,10 @@ Vector3 ComputePointLight(Light L, Material mat, Vector3 pos, Vector3 normal, Ve
 {
     Vector3 lightVec = L.Position - pos;
 
-    // ½¦ÀÌµùÇÒ ÁöÁ¡ºÎÅÍ Á¶¸í±îÁöÀÇ °Å¸® °è»ê
+    // ì‰ì´ë”©í•  ì§€ì ë¶€í„° ì¡°ëª…ê¹Œì§€ì˜ ê±°ë¦¬ ê³„ì‚°
     float d = lightVec.Length();
 
-    // ³Ê¹« ¸Ö¸é Á¶¸íÀÌ Àû¿ëµÇÁö ¾ÊÀ½
+    // ë„ˆë¬´ ë©€ë©´ ì¡°ëª…ì´ ì ìš©ë˜ì§€ ì•ŠìŒ
     if (d > L.FallOffEnd)
         return Vector3(0.0f);
 
@@ -148,10 +148,10 @@ Vector3 ComputeSpotLight(Light L, Material mat, Vector3 pos, Vector3 normal, Vec
 {
     Vector3 lightVec = L.Position - pos;
 
-    // ½¦ÀÌµùÇÒ ÁöÁ¡ºÎÅÍ Á¶¸í±îÁöÀÇ °Å¸® °è»ê
+    // ì‰ì´ë”©í•  ì§€ì ë¶€í„° ì¡°ëª…ê¹Œì§€ì˜ ê±°ë¦¬ ê³„ì‚°
     float d = lightVec.Length();
 
-    // ³Ê¹« ¸Ö¸é Á¶¸íÀÌ Àû¿ëµÇÁö ¾ÊÀ½
+    // ë„ˆë¬´ ë©€ë©´ ì¡°ëª…ì´ ì ìš©ë˜ì§€ ì•ŠìŒ
     if (d > L.FallOffEnd)
         return Vector3(0.0f);
 
@@ -173,22 +173,22 @@ VsOutput CpuVertexShader(VsInput vsInput)
 {
     VsOutput vsOutput;
 
-    // ¸¶Áö¸·¿¡ 1.0f Ãß°¡
-    Vector4 point = Vector4(vsInput.Position.x, vsInput.Position.y, vsInput.Position.z, 1.0f);
+    // ë§ˆì§€ë§‰ì— 1.0f ì¶”ê°€
+    Vector4 point = Vector4{ vsInput.Position.x, vsInput.Position.y, vsInput.Position.z, 1.0f };
 
     Vector4 worldMat = Vector4::Transform(point, g_constants.worldMat);
     vsOutput.Position = Vector3(worldMat.x, worldMat.y, worldMat.z);
 
-    // ¸¶Áö¸·¿¡ 0.0f Ãß°¡
-    Vector4 normal = Vector4(vsInput.normal.x, vsInput.normal.y, vsInput.normal.z, 0.0f);
+    // ë§ˆì§€ë§‰ì— 0.0f ì¶”ê°€
+    Vector4 normal = Vector4{ vsInput.normal.x, vsInput.normal.y, vsInput.normal.z, 0.0f };
     normal = Vector4::Transform(normal, g_constants.worldMatInv);
     normal.Normalize();
     vsOutput.normal = Vector3(normal.x, normal.y, normal.z);
 
-    // °ø°£ º¯È¯Àº ¿ùµå ½ºÆäÀÌ½º±îÁö¸¸ ¼öÇà
-    // view space º¯È¯µÈ ÁÂÇ¥°è´Â Á÷°üÀûÀ¸·Î ÀÎÁöÇÏ±â°¡ ½±Áö ¾Ê¾Æ¼­, µğ¹ö±ë ÇÏ±â°¡ ±ÍÂú´Ù
-    // view space -> clip space -> screen spaceÀÇ º¯È¯À» ProjectWorldToRaster()¿¡¼­ ÇÑ¹ø¿¡ ÁøÇàÇÑ´Ù
-    // @todo. local -> world -> view º¯È¯À» ¼öÇà(Ä«¸Ş¶ó¿¡ ´ëÇÑ Ãß°¡ÀûÀÎ ±â´É ±¸ÇöÀÌ µé¾î°¡°Ô µÈ´Ù¸é)
+    // ê³µê°„ ë³€í™˜ì€ ì›”ë“œ ìŠ¤í˜ì´ìŠ¤ê¹Œì§€ë§Œ ìˆ˜í–‰
+    // view space ë³€í™˜ëœ ì¢Œí‘œê³„ëŠ” ì§ê´€ì ìœ¼ë¡œ ì¸ì§€í•˜ê¸°ê°€ ì‰½ì§€ ì•Šì•„ì„œ, ë””ë²„ê¹… í•˜ê¸°ê°€ ê·€ì°®ë‹¤
+    // view space -> clip space -> screen spaceì˜ ë³€í™˜ì„ ProjectWorldToRaster()ì—ì„œ í•œë²ˆì— ì§„í–‰í•œë‹¤
+    // @todo. local -> world -> view ë³€í™˜ì„ ìˆ˜í–‰(ì¹´ë©”ë¼ì— ëŒ€í•œ ì¶”ê°€ì ì¸ ê¸°ëŠ¥ êµ¬í˜„ì´ ë“¤ì–´ê°€ê²Œ ëœë‹¤ë©´)
     return vsOutput;
 }
 
@@ -200,7 +200,7 @@ Vector4 CpuPixelShader(const PsInput psInput)
 
     Vector3 color;
 
-    // Ã¼Å©ÆĞÅÏ, µğ¹ö±ë¿ë
+    // ì²´í¬íŒ¨í„´, ë””ë²„ê¹…ìš©
     /*if (!g_constants.material.diffuseTex)
     {
         float Size = 0.1f;
@@ -222,7 +222,7 @@ Vector4 CpuPixelShader(const PsInput psInput)
         color = ComputeSpotLight(g_constants.light, g_constants.material, psInput.Position, psInput.normal, toEye, psInput.uv);
     }
 
-    return Vector4(color.x, color.y, color.z, 1.0f);
+    return Vector4{ color.x, color.y, color.z, 1.0f };
 }
 
 }

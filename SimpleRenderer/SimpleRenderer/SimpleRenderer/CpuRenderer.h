@@ -18,6 +18,7 @@ struct D3dVertex
 	DirectX::SimpleMath::Vector2 uv;
 };
 
+// @todo d3d 11 apië¥¼ ì‚¬ìš©í•˜ëŠ” cpu ë Œë”ëŸ¬ì´ê¸° ë•Œë¬¸ì— D3d11Renderer í´ë˜ìŠ¤ ì•„ë˜ë¡œ ë‚´ë¦´ ê²ƒ
 class CpuRenderer : public IRenderer
 {
 	int width;
@@ -29,45 +30,45 @@ private:
 
 	std::vector<std::shared_ptr<Object>> objects;
 	
-	std::shared_ptr<Mesh> selectedMesh;
+	std::weak_ptr<Mesh> selectedMesh;
 
-	std::shared_ptr<Light> selectedLight;
+	std::weak_ptr<Light> selectedLight;
 
 	ELightType lightType;
 
-	// À©µµ¿ì ÇÚµé
+	// ìœˆë„ìš° í•¸ë“¤
 	HWND mainWindowHandle;
 
-	// µğ¹ÙÀÌ½º
+	// ë””ë°”ì´ìŠ¤
 	Microsoft::WRL::ComPtr<ID3D11Device> device;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> context;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> swapChain;
 	
-	// ComPtr ¾²¸é Á¦´ë·Î ·»´õ¸µÀ» ¸øÇÑ´Ù. ¿Ö?
-	// ºäÆ÷Æ®
+	// ComPtr ì“°ë©´ ì œëŒ€ë¡œ ë Œë”ë§ì„ ëª»í•œë‹¤. ì™œ?
+	// ë·°í¬íŠ¸
 	D3D11_VIEWPORT viewport;
 
-	// ¸ŞÀÎ ·»´õÅ¸°Ù
+	// ë©”ì¸ ë Œë”íƒ€ê²Ÿ
 	ID3D11RenderTargetView* renderTargetView;
 
-	// Cpu Rasterization ±¸Çö ¸ñÀûÀÇ 2DTexture. ¿©±â¿¡ ÇÈ¼¿À» Âï¾î¼­ ·»´õ¸µÇÑ´Ù
+	// Cpu Rasterization êµ¬í˜„ ëª©ì ì˜ 2DTexture. ì—¬ê¸°ì— í”½ì…€ì„ ì°ì–´ì„œ ë Œë”ë§í•œë‹¤
 	ID3D11Texture2D* canvasTexture;
 	ID3D11ShaderResourceView* canvasTextureView;
 
-	// ÅØ½ºÃ³ ¼³Á¤À» À§ÇÑ »ùÇÃ·¯
+	// í…ìŠ¤ì²˜ ì„¤ì •ì„ ìœ„í•œ ìƒ˜í”ŒëŸ¬
 	ID3D11SamplerState* colorSampler;
 
-	// ½¦ÀÌ´õ
+	// ì‰ì´ë”
 	ID3D11VertexShader* vertexShader;
 	ID3D11PixelShader* pixelShader;
 	ID3D11InputLayout* layout;
 
-	// ¹öÆÛ
+	// ë²„í¼
 	ID3D11Buffer* vertexBuffer;
 	ID3D11Buffer* indexBuffer;
 	UINT indexCount;
 
-	// ~~GUI ±â´É~~
+	// ~~GUI ê¸°ëŠ¥~~
 	float leftClip = 1.0f;
 	float rightClip = 1.0f;
 	float topClip = 1.0f;
@@ -78,19 +79,21 @@ public:
 	CpuRenderer();
 	virtual ~CpuRenderer();
 
-	bool Create() override;
+	virtual bool Create() override;
 
-	bool Initialize(HWND mainWindow, const int bufferWidth, const int bufferHeight) override;
+	virtual bool Initialize(HWND mainWindow, const int bufferWidth, const int bufferHeight) override;
 
-	bool SetObjects(std::vector<std::shared_ptr<Object>>&& receivedObjects) override;
+	virtual bool SetObjects(std::vector<std::shared_ptr<Object>>&& receivedObjects) override;
 
-	void Update() override;
+	virtual void OnResizeWindow(const int width, const int height) override;
 
-	void Render() override;
+	virtual void Update() override;
 
-	void OnPostRender() override;
+	virtual void Render() override;
 
-	bool Reset() override;
+	virtual void OnPostRender() override;
+
+	virtual bool Reset() override;
 
 private:
 	bool initDirect3D();

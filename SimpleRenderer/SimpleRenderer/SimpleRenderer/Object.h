@@ -11,14 +11,14 @@ struct Transformation
     float rotationZ = 0.0f;
 };
 
-// ½ÇÁ¦ ¾À¿¡ ¿Ã¶ó°¥ ¼ö ÀÖ´Â °´Ã¼¸¸ ÇØ´çµË´Ï´Ù
-// @todo. ÀÌ¸§ ¼öÁ¤ ÇÊ¿ä -> ex) RenderObject / PrimitiveObject µî
+// ì‹¤ì œ ì”¬ì— ì˜¬ë¼ê°ˆ ìˆ˜ ìˆëŠ” ê°ì²´ë§Œ í•´ë‹¹ë©ë‹ˆë‹¤
+// @todo. ì´ë¦„ ìˆ˜ì • í•„ìš” -> ex) RenderObject / PrimitiveObject ë“±
 class Object
 {
 public:
     virtual ~Object();
 
-    // ¸ğµç ¹öÅØ½º¿¡ °øÅëÀ¸·Î Àû¿ëµÇ´Â º¯È¯(Transformations)
+    // ëª¨ë“  ë²„í…ìŠ¤ì— ê³µí†µìœ¼ë¡œ ì ìš©ë˜ëŠ” ë³€í™˜(Transformations)
     Transformation Transform;
 };
 

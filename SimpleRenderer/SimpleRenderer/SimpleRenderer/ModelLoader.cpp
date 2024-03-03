@@ -124,8 +124,8 @@ Mesh MeshLoader::processMesh(aiMesh* mesh, const aiScene* scene)
 
 void MeshLoader::calcNormal()
 {
-    // ³ë¸Ö º¤ÅÍ°¡ ¾ø´Â °æ¿ì¸¦ ´ëºñÇÏ¿© ´Ù½Ã °è»ê
-    // ÇÑ À§Ä¡¿¡´Â ÇÑ ¹öÅØ½º¸¸ ÀÖ¾î¾ß ¿¬°á °ü°è¸¦ Ã£À» ¼ö ÀÖÀ½
+    // ë…¸ë©€ ë²¡í„°ê°€ ì—†ëŠ” ê²½ìš°ë¥¼ ëŒ€ë¹„í•˜ì—¬ ë‹¤ì‹œ ê³„ì‚°
+    // í•œ ìœ„ì¹˜ì—ëŠ” í•œ ë²„í…ìŠ¤ë§Œ ìžˆì–´ì•¼ ì—°ê²° ê´€ê³„ë¥¼ ì°¾ì„ ìˆ˜ ìžˆìŒ
     for (auto& m : this->meshes)
     {
         vector<Vector3> normalsTemp(m.Vertices.size(), Vector3(0.0f));

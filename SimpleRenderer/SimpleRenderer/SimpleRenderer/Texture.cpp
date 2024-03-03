@@ -37,9 +37,9 @@ Vector3 Texture::SampleLinear(const Vector2& uv)
 		return Vector3::Zero;
 	}
 
-	// ÅØ½ºÃ³ uv [0.0, 1.0] x [0.0, 1.0]
-	// ÀÌ¹ÌÁö xy [-0.5, Width + 0.5] x [-0.5, Height + 0.5]
-	const Vector2 xy = uv * Vector2(static_cast<float>(Width), static_cast<float>(Height)) - Vector2(0.5f);
+	// í…ìŠ¤ì²˜ uv [0.0, 1.0] x [0.0, 1.0]
+	// ì´ë¯¸ì§€ xy [-0.5, Width + 0.5] x [-0.5, Height + 0.5]
+	const Vector2& xy = uv * Vector2(static_cast<float>(Width), static_cast<float>(Height)) - Vector2(0.5f);
 	const int i = static_cast<int>(std::floor(xy.x));
 	const int j = static_cast<int>(std::floor(xy.y));
 	const float dx = xy.x - static_cast<float>(i);

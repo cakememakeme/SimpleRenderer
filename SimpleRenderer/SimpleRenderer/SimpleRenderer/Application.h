@@ -32,8 +32,11 @@ public:
 
 	bool Initialize(const ERenderer type);
 	int Run();
+	LRESULT MessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 private:
+	std::vector<std::shared_ptr<Object>> generateObjects();
+
 	bool initMainWindows();
 
 	bool createRenderer(const ERenderer& type);

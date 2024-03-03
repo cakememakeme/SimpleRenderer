@@ -74,6 +74,11 @@ bool CpuRenderer::SetObjects(std::vector<std::shared_ptr<Object>>&& receivedObje
 	return false;
 }
 
+void CpuRenderer::OnResizeWindow(const int width, const int height)
+{
+
+}
+
 void CpuRenderer::Update()
 {
 	if (!selectModel())
@@ -94,12 +99,12 @@ void CpuRenderer::Render()
 
 	// copy to resource
 	{
-		vector<Vector4> displayBuffer = renderViaCpu(); // CPU ·»´õ¸µ
+		vector<Vector4> displayBuffer = renderViaCpu(); // CPU ë Œë”ë§
 		if (displayBuffer.empty())
 		{
 			std::cout << "renderViaCpu() failed." << std::endl;
 			displayBuffer.resize(width * height);
-			std::fill(displayBuffer.begin(), displayBuffer.end(), Vector4(0.0f, 0.0f, 0.0f, 1.0f));
+			std::fill(displayBuffer.begin(), displayBuffer.end(), Vector4{ 0.0f, 0.0f, 0.0f, 1.0f });
 		}
 		D3D11_MAPPED_SUBRESOURCE subresource = {};
 		context->Map(canvasTexture, 0, D3D11_MAP_WRITE_DISCARD, 0, &subresource);
@@ -107,7 +112,7 @@ void CpuRenderer::Render()
 		context->Unmap(canvasTexture, 0);
 	}
 
-	// µğ¹ÙÀÌ½º¿¡ ·»´õ¸µ
+	// ë””ë°”ì´ìŠ¤ì— ë Œë”ë§
 	{
 		float clearColor[4] = { 0.0f, 0.2f, 0.0f, 1.0f };
 		context->RSSetViewports(1, &viewport);
@@ -192,7 +197,7 @@ bool CpuRenderer::initDirect3D()
 {
 	//https://learn.microsoft.com/ko-kr/windows/uwp/gaming/simple-port-from-direct3d-9-to-11-1-part-1--initializing-direct3d
 
-	// device, context »ı¼º
+	// device, context ìƒì„±
 	const D3D_DRIVER_TYPE driverType = D3D_DRIVER_TYPE_HARDWARE;
 	UINT createDeviceFlags = 0;
 	const D3D_FEATURE_LEVEL featureLevels[2] = {
@@ -221,7 +226,7 @@ bool CpuRenderer::initDirect3D()
 		}
 	}
 
-	// ½º¿ÒÃ¼ÀÎ
+	// ìŠ¤ì™‘ì²´ì¸
 	DXGI_SWAP_CHAIN_DESC swapChainDesc = {};
 	{
 		swapChainDesc.BufferCount = 2;
@@ -254,7 +259,7 @@ bool CpuRenderer::initDirect3D()
 		}
 	}
 
-	// ¹é¹öÆÛ
+	// ë°±ë²„í¼
 	{
 		ComPtr<ID3D11Texture2D> backBuffer;
 		swapChain->GetBuffer(0, IID_PPV_ARGS(&backBuffer));
@@ -265,7 +270,7 @@ bool CpuRenderer::initDirect3D()
 		}
 	}
 
-	// ºäÆ÷Æ®
+	// ë·°í¬íŠ¸
 	{
 		viewport.TopLeftX = 0;
 		viewport.TopLeftY = 0;
@@ -282,7 +287,7 @@ bool CpuRenderer::initDirect3D()
 		return false;
 	}
 
-	// ÅØ½ºÃ³ »ùÇÃ·¯ ¼³Á¤
+	// í…ìŠ¤ì²˜ ìƒ˜í”ŒëŸ¬ ì„¤ì •
 	D3D11_SAMPLER_DESC sampDesc = {};
 	{
 		sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT; // D3D11_FILTER_MIN_MAG_MIP_LINEAR
@@ -300,8 +305,8 @@ bool CpuRenderer::initDirect3D()
 		}
 	}
 
-	// planeÀ» È­¸é¿¡ ±ò°í, °Å±â¿¡ CpuRenderPipeline¿¡¼­ Ã³¸®ÇÑ fragment¸¦ plane¿¡ ±×¸°´Ù
-	// plane ¸Ş½Ãµ¥ÀÌÅÍ ¼³Á¤
+	// planeì„ í™”ë©´ì— ê¹”ê³ , ê±°ê¸°ì— CpuRenderPipelineì—ì„œ ì²˜ë¦¬í•œ fragmentë¥¼ planeì— ê·¸ë¦°ë‹¤
+	// plane ë©”ì‹œë°ì´í„° ì„¤ì •
 	{
 		const std::vector<D3dVertex> vertices = {
 			{
@@ -350,7 +355,7 @@ bool CpuRenderer::initDirect3D()
 		};
 	}
 
-	// ÀÎµ¦½º ¼³Á¤
+	// ì¸ë±ìŠ¤ ì„¤ì •
 	{
 		const std::vector<uint16_t> indices = {
 			3, 1, 0, 2, 1, 3,
@@ -377,7 +382,7 @@ bool CpuRenderer::initDirect3D()
 		device->CreateBuffer(&bufferDesc, &indexBufferData, &indexBuffer);
 	}
 
-	// ÅØ½ºÃ³ ¼³Á¤
+	// í…ìŠ¤ì²˜ ì„¤ì •
 	D3D11_TEXTURE2D_DESC textureDesc = {};
 	{
 		textureDesc.ArraySize = 1;
@@ -440,7 +445,9 @@ void CpuRenderer::updateGui()
 	ImGui::Begin("Scene Control");
 
 	// gui update
-	if(selectedMesh && selectedLight)
+	std::shared_ptr<Mesh> mesh = selectedMesh.lock();
+	std::shared_ptr<Light> light = selectedLight.lock();
+	if(mesh && light)
 	{
 		ImGui::SliderFloat("Clipping Left", &leftClip, -1.0f, 1.0f);
 
@@ -452,26 +459,26 @@ void CpuRenderer::updateGui()
 
 		ImGui::SliderFloat("Clipping Near", &nearClip, 0.0f, 1.0f);
 
-		ImGui::SliderAngle("Object RotationAboutX", &selectedMesh->Transform.rotationX);
+		ImGui::SliderAngle("Object RotationAboutX", &mesh->Transform.rotationX);
 
-		ImGui::SliderAngle("Object RotationAboutY", &selectedMesh->Transform.rotationY);
+		ImGui::SliderAngle("Object RotationAboutY", &mesh->Transform.rotationY);
 
-		ImGui::SliderAngle("Object RotationAboutZ", &selectedMesh->Transform.rotationZ);
+		ImGui::SliderAngle("Object RotationAboutZ", &mesh->Transform.rotationZ);
 
-		ImGui::SliderFloat3("Object Translation", &selectedMesh->Transform.translation.x, -3.0f, 4.0f);
+		ImGui::SliderFloat3("Object Translation", &mesh->Transform.translation.x, -3.0f, 4.0f);
 
-		ImGui::SliderFloat3("Object Scale", &selectedMesh->Transform.scale.x, 0.1f, 2.0f);
+		ImGui::SliderFloat3("Object Scale", &mesh->Transform.scale.x, 0.1f, 2.0f);
 
-		ImGui::SliderFloat3("Material ambient", &selectedMesh->Material.Ambient.x, 0.0f, 1.0f);
+		ImGui::SliderFloat3("Material ambient", &mesh->Material.Ambient.x, 0.0f, 1.0f);
 
-		if (!selectedMesh->Material.diffuseTex)
+		if (!mesh->Material.diffuseTex)
 		{
-			ImGui::SliderFloat3("Material diffuse", &selectedMesh->Material.Diffuse.x, 0.0f, 1.0f);
+			ImGui::SliderFloat3("Material diffuse", &mesh->Material.Diffuse.x, 0.0f, 1.0f);
 		}
 
-		ImGui::SliderFloat3("Material specular", &selectedMesh->Material.Specular.x, 0.0f, 1.0f);
+		ImGui::SliderFloat3("Material specular", &mesh->Material.Specular.x, 0.0f, 1.0f);
 
-		ImGui::SliderFloat("Material shininess", &selectedMesh->Material.Shininess, 0.0f, 256.0f);
+		ImGui::SliderFloat("Material shininess", &mesh->Material.Shininess, 0.0f, 256.0f);
 
 		if (ImGui::RadioButton("Directional Light", static_cast<int>(lightType) == 0))
 		{
@@ -488,23 +495,23 @@ void CpuRenderer::updateGui()
 			lightType = ELightType::Spot;
 		}
 
-		ImGui::SliderFloat3("Light Strength", &selectedLight->Strength.x, 0.0f, 1.0f);
+		ImGui::SliderFloat3("Light Strength", &light->Strength.x, 0.0f, 1.0f);
 
-		if (ImGui::SliderFloat3("Light Direction", &selectedLight->Direction.x, -3.0f, 3.0f))
+		if (ImGui::SliderFloat3("Light Direction", &light->Direction.x, -3.0f, 3.0f))
 		{
-			if (selectedLight->Direction.Length() > 1e-5f)
+			if (light->Direction.Length() > 1e-5f)
 			{
-				selectedLight->Direction.Normalize();
+				light->Direction.Normalize();
 			}
 		};
 
-		ImGui::SliderFloat3("Light Position", &selectedLight->Position.x, -2.0f, 2.0f);
+		ImGui::SliderFloat3("Light Position", &light->Position.x, -2.0f, 2.0f);
 
-		ImGui::SliderFloat("Light fallOffStart", &selectedLight->FallOffStart, 0.0f, 5.0f);
+		ImGui::SliderFloat("Light fallOffStart", &light->FallOffStart, 0.0f, 5.0f);
 
-		ImGui::SliderFloat("Light fallOffEnd", &selectedLight->FallOffEnd, 0.0f, 10.0f);
+		ImGui::SliderFloat("Light fallOffEnd", &light->FallOffEnd, 0.0f, 10.0f);
 
-		ImGui::SliderFloat("Light spotPower", &selectedLight->SpotPower, 0.0f, 512.0f);
+		ImGui::SliderFloat("Light spotPower", &light->SpotPower, 0.0f, 512.0f);
 	}
 
 	ImGui::End();
@@ -523,7 +530,7 @@ bool CpuRenderer::selectModel()
 		return false;
 	}
 
-	// @todo. ¿©·¯ °³ÀÇ ¿ÀºêÁ§Æ® ¼³Á¤ ±¸Çö
+	// @todo. ì—¬ëŸ¬ ê°œì˜ ì˜¤ë¸Œì íŠ¸ ì„¤ì • êµ¬í˜„
 	for (auto& object : objects)
 	{
 		shared_ptr<Mesh> mesh = dynamic_pointer_cast<Mesh>(object);
@@ -538,7 +545,7 @@ bool CpuRenderer::selectModel()
 		}
 	}
 
-	if (selectedMesh && selectedLight)
+	if (selectedMesh.lock() && selectedLight.lock())
 	{
 		return true;
 	}

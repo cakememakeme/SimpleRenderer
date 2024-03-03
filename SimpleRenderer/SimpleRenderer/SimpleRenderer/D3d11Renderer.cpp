@@ -8,7 +8,7 @@
 #include <d3dcompiler.h>
 
 #include <tuple>
-//¼öµ¿À¸·Î ½¦ÀÌ´õ ÄÄÆÄÀÏ
+//ìˆ˜ë™ìœ¼ë¡œ ì‰ì´ë” ì»´íŒŒì¼
 //#include <fstream>
 //#include <iterator>
 //#include <vector>
@@ -51,17 +51,17 @@ bool D3d11Renderer::Initialize(HWND mainWindow, const int bufferWidth, const int
 		return false;
 	}
 
-	// Geometry Á¤ÀÇ
+	// Geometry ì •ì˜
 	auto [vertices, indices] = GeometryGenerator::MakeBox_TEMP();
 
-	// ¹öÅØ½º ¹öÆÛ ¸¸µé±â
+	// ë²„í…ìŠ¤ ë²„í¼ ë§Œë“¤ê¸°
 	if (!createVertexBuffer(vertices, vertexBuffer))
 	{
 		cout << "createVertexBuffer() failed." << endl;
 		return false;
 	}
 
-	// ÀÎµ¦½º ¹öÆÛ ¸¸µé±â
+	// ì¸ë±ìŠ¤ ë²„í¼ ë§Œë“¤ê¸°
 	indexCount = UINT(indices.size());
 
 	if (!createIndexBuffer(indices, indexBuffer))
@@ -70,7 +70,7 @@ bool D3d11Renderer::Initialize(HWND mainWindow, const int bufferWidth, const int
 		return false;
 	}
 
-	// ConstantBuffer ¸¸µé±â
+	// ConstantBuffer ë§Œë“¤ê¸°
 	constantBufferData.Model = Matrix();
 	constantBufferData.View = Matrix();
 	constantBufferData.Projection = Matrix();
@@ -80,7 +80,7 @@ bool D3d11Renderer::Initialize(HWND mainWindow, const int bufferWidth, const int
 		return false;
 	}
 
-	// ½¦ÀÌ´õ ¸¸µé±â
+	// ì‰ì´ë” ë§Œë“¤ê¸°
 	// Input-layout objects describe how vertex buffer data is streamed into the
 	// IA(Input-Assembler) pipeline stage.
 	// https://learn.Microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11devicecontext-iasetinputlayout
@@ -110,10 +110,35 @@ bool D3d11Renderer::Initialize(HWND mainWindow, const int bufferWidth, const int
 		return false;
 	}
 
-	// ±âÅ¸ ¼³Á¤
-	aspect = getAspectRatio();
-
 	return true;
+}
+
+void D3d11Renderer::OnResizeWindow(const int newWidth, const int newHeight)
+{
+	if (!swapChain)
+	{
+		cout << "Swapchain missing." << endl;
+		return;
+	}
+
+	if (!renderTargetView)
+	{
+		cout << "Rendertargetview missing." << endl;
+		return;
+	}
+
+	width = newWidth;
+	height = newHeight;
+	setGuiWidth(0);
+	renderTargetView.Reset();
+	swapChain->ResizeBuffers(0, 
+		static_cast<UINT>(width),
+		static_cast<UINT>(height),
+		DXGI_FORMAT_UNKNOWN,
+		0);
+	createRenderTargetView();
+	createDepthBuffer();
+	setViewport();
 }
 
 bool D3d11Renderer::SetObjects(std::vector<std::shared_ptr<Object>>&& receivedObjects)
@@ -123,31 +148,31 @@ bool D3d11Renderer::SetObjects(std::vector<std::shared_ptr<Object>>&& receivedOb
 
 void D3d11Renderer::Update()
 {
-	ImGui_ImplDX11_NewFrame(); // GUI ÇÁ·¹ÀÓ ½ÃÀÛ
+	ImGui_ImplDX11_NewFrame(); // GUI í”„ë ˆì„ ì‹œì‘
 	ImGui_ImplWin32_NewFrame();
 
-	ImGui::NewFrame(); // ¾î¶² °ÍµéÀ» ·»´õ¸µ ÇÒÁö ±â·Ï ½ÃÀÛ
+	ImGui::NewFrame(); // ì–´ë–¤ ê²ƒë“¤ì„ ë Œë”ë§ í• ì§€ ê¸°ë¡ ì‹œì‘
 	ImGui::Begin("Scene Control");
 
-	// ImGui°¡ ÃøÁ¤ÇØÁÖ´Â Framerate Ãâ·Â
+	// ImGuiê°€ ì¸¡ì •í•´ì£¼ëŠ” Framerate ì¶œë ¥
 	ImGui::Text("Average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate,
 		ImGui::GetIO().Framerate);
 
-	updateGui(); // Ãß°¡ÀûÀ¸·Î »ç¿ëÇÒ GUI
+	updateGui(); // ì¶”ê°€ì ìœ¼ë¡œ ì‚¬ìš©í•  GUI
 
 	ImGui::End();
-	ImGui::Render(); // ·»´õ¸µÇÒ °Íµé ±â·Ï ³¡
+	ImGui::Render(); // ë Œë”ë§í•  ê²ƒë“¤ ê¸°ë¡ ë
 
-	update(ImGui::GetIO().DeltaTime); // ¾Ö´Ï¸ŞÀÌ¼Ç °°Àº º¯È­
+	update(ImGui::GetIO().DeltaTime); // ì• ë‹ˆë©”ì´ì…˜ ê°™ì€ ë³€í™”
 }
 
 void D3d11Renderer::Render()
 {
 	render();
 
-	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData()); // GUI ·»´õ¸µ
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData()); // GUI ë Œë”ë§
 	// Switch the back buffer and the front buffer
-	// ÁÖÀÇ: ImGui RenderDrawData() ´ÙÀ½¿¡ Present() È£Ãâ
+	// ì£¼ì˜: ImGui RenderDrawData() ë‹¤ìŒì— Present() í˜¸ì¶œ
 	swapChain->Present(1, 0);
 }
 
@@ -157,42 +182,12 @@ void D3d11Renderer::OnPostRender()
 
 bool D3d11Renderer::Reset()
 {
-	/*if (renderTargetView)
-	{
-		renderTargetView->Release();
-		renderTargetView = nullptr;
-	}
-
-	if (rasterizerSate)
-	{
-		rasterizerSate->Release();
-		rasterizerSate = nullptr;
-	}
-
-	if (depthStencilBuffer)
-	{
-		depthStencilBuffer->Release();
-		depthStencilBuffer = nullptr;
-	}
-
-	if (depthStencilView)
-	{
-		depthStencilView->Release();
-		depthStencilView = nullptr;
-	}
-
-	if (depthStencilState)
-	{
-		depthStencilState->Release();
-		depthStencilState = nullptr;
-	}*/
-
 	return true;
 }
 
 bool D3d11Renderer::initDirect3D()
 {
-	// device, context »ı¼º
+	// device, context ìƒì„±
 	const D3D_DRIVER_TYPE driverType = D3D_DRIVER_TYPE_HARDWARE;
 	UINT createDeviceFlags = 0;
 #if defined(DEBUG) || defined(_DEBUG)
@@ -203,7 +198,7 @@ bool D3d11Renderer::initDirect3D()
 	// Create device
 	{
 		if (FAILED(D3D11CreateDevice(
-			nullptr, // ºñµğ¿À ¾î´ğÅÍ, DXGI : directx graphics infrastructer, ¿©·¯ d3d°¡ °øÅëÀûÀ¸·Î »ç¿ëÇÒ ¼ö ÀÖ°Ô µğ½ºÇÃ·¹ÀÌ Àú¼öÁØ Á¦¾î¸¦ ¹­¾îµĞ °Í
+			nullptr, // ë¹„ë””ì˜¤ ì–´ëŒ‘í„°, DXGI : directx graphics infrastructer, ì—¬ëŸ¬ d3dê°€ ê³µí†µì ìœ¼ë¡œ ì‚¬ìš©í•  ìˆ˜ ìˆê²Œ ë””ìŠ¤í”Œë ˆì´ ì €ìˆ˜ì¤€ ì œì–´ë¥¼ ë¬¶ì–´ë‘” ê²ƒ
 			D3D_DRIVER_TYPE_HARDWARE,
 			nullptr,
 			createDeviceFlags,
@@ -235,99 +230,32 @@ bool D3d11Renderer::initDirect3D()
 	}
 
 	// MSAA
-	UINT msaaQualityLevels = 0;
 	{
-		device->CheckMultisampleQualityLevels(DXGI_FORMAT_R8G8B8A8_UNORM, 4, &msaaQualityLevels);
+		device->CheckMultisampleQualityLevels(DXGI_FORMAT_R8G8B8A8_UNORM, 4, &massSamplingCount);
 		{
-			if (msaaQualityLevels <= 0)
+			if (massSamplingCount <= 0)
 			{
 				cout << "MSAA not supported." << endl;
 			}
 		}
 	}
 
-	// swap chain
-	// ¹öÆÛÀÇ Æ÷ÀÎÅÍ¸¸ ¿Ô´Ù°¬´Ù ÇÑ´Ù: Page Flipping
-	DXGI_SWAP_CHAIN_DESC swapChainDesc;
+	if (!createSwapChain())
 	{
-		ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
-		swapChainDesc.BufferDesc.Width = width;
-		swapChainDesc.BufferDesc.Height = height;
-		swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;	// use 32-bit color
-		swapChainDesc.BufferCount = 2;									// Double-buffering
-		swapChainDesc.BufferDesc.RefreshRate.Numerator = 60;			// ÁÖ»çÀ², ºĞÀÚ
-		swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;			// ÁÖ»çÀ², ºĞ¸ğ ( 60 / 1 )
-		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;	// how swap chain is to be used
-		swapChainDesc.OutputWindow = mainWindowHandle;                 // the window to be used
-		swapChainDesc.Windowed = TRUE;									// windowed/full-screen mode
-		swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;	// allow full-screen switching
-		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-		if (msaaQualityLevels > 0)
-		{
-			swapChainDesc.SampleDesc.Count = 4; // how many multisamples
-			swapChainDesc.SampleDesc.Quality = msaaQualityLevels - 1;
-		}
-		else
-		{
-			swapChainDesc.SampleDesc.Count = 1; // how many multisamples
-			swapChainDesc.SampleDesc.Quality = 0;
-		}
+		cout << "createSwapChain() failed." << endl;
+		return false;
 	}
 
-	// Create swap chain
+	if (!createRenderTargetView())
 	{
-		ComPtr<IDXGIDevice> dxgiDevice;
-		device.As(&dxgiDevice);
-
-		ComPtr<IDXGIAdapter> dxgiAdapter;
-		dxgiDevice->GetAdapter(&dxgiAdapter);
-
-		ComPtr<IDXGIFactory1> dxgiFactory;
-		dxgiAdapter->GetParent(IID_PPV_ARGS(&dxgiFactory));
-
-		if (!dxgiFactory)
-		{
-			std::cout << "Failed to retrieve the IDXGIFactory1 interface associated with D3D11 device" << endl;
-			return false;
-		}
-
-		if (FAILED(dxgiFactory->CreateSwapChain(device.Get(), &swapChainDesc, swapChain.GetAddressOf())))
-		{
-			std::cout << "CreateSwapChain() failed." << endl;
-			return false;
-		}
+		cout << "createRenderTargetView() failed." << endl;
+		return false;
 	}
 
-	// CreateRenderTarget
+	// Set viewport
 	{
-		ComPtr<ID3D11Texture2D> backBuffer;
-		swapChain->GetBuffer(0, IID_PPV_ARGS(backBuffer.GetAddressOf()));
-		if (backBuffer)
-		{
-			if (FAILED(device->CreateRenderTargetView(backBuffer.Get(), nullptr, renderTargetView.GetAddressOf())))
-			{
-				cout << "CreateRenderTargetView() failed." << endl;
-				return false;
-			}
-		}
-		else
-		{
-			cout << "Backbuffer missing." << endl;
-			return false;
-		}
-	}
-
-	// Set the viewport
-	{
-		ZeroMemory(&screenViewport, sizeof(D3D11_VIEWPORT));
-		screenViewport.TopLeftX = 0;
-		screenViewport.TopLeftY = 0;
-		screenViewport.Width = float(width);
-		screenViewport.Height = float(height);
-		// screenViewport.Width = static_cast<float>(height);
-		screenViewport.MinDepth = 0.0f;
-		screenViewport.MaxDepth = 1.0f; // Note: important for depth buffering
-		context->RSSetViewports(1, &screenViewport);
+		bViewportNeedUpdate = true;
+		setViewport();
 	}
 
 	// Create a rasterizer state
@@ -344,37 +272,7 @@ bool D3d11Renderer::initDirect3D()
 	}
 
 	// Create depth buffer
-	{
-		D3D11_TEXTURE2D_DESC depthStencilBufferDesc;
-		depthStencilBufferDesc.Width = width;
-		depthStencilBufferDesc.Height = height;
-		depthStencilBufferDesc.MipLevels = 1;
-		depthStencilBufferDesc.ArraySize = 1;
-		depthStencilBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-		if (msaaQualityLevels > 0)
-		{
-			depthStencilBufferDesc.SampleDesc.Count = 4; // how many multisamples
-			depthStencilBufferDesc.SampleDesc.Quality = msaaQualityLevels - 1;
-		}
-		else
-		{
-			depthStencilBufferDesc.SampleDesc.Count = 1; // how many multisamples
-			depthStencilBufferDesc.SampleDesc.Quality = 0;
-		}
-		depthStencilBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-		depthStencilBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-		depthStencilBufferDesc.CPUAccessFlags = 0;
-		depthStencilBufferDesc.MiscFlags = 0;
-
-		if (FAILED(device->CreateTexture2D(&depthStencilBufferDesc, 0, depthStencilBuffer.GetAddressOf())))
-		{
-			cout << "CreateTexture2D() failed." << endl;
-		}
-		if (FAILED(device->CreateDepthStencilView(depthStencilBuffer.Get(), 0, depthStencilView.GetAddressOf())))
-		{
-			cout << "CreateDepthStencilView() failed." << endl;
-		}
-	}
+	createDepthBuffer();
 
 	// Create depth stencil state
 	{
@@ -417,7 +315,7 @@ bool D3d11Renderer::initGui()
 bool D3d11Renderer::createIndexBuffer(const vector<uint16_t>& indices, ComPtr<ID3D11Buffer>& indexBuffer)
 {
 	D3D11_BUFFER_DESC bufferDesc = {};
-	bufferDesc.Usage = D3D11_USAGE_IMMUTABLE; // ÃÊ±âÈ­ ÈÄ º¯°æX
+	bufferDesc.Usage = D3D11_USAGE_IMMUTABLE; // ì´ˆê¸°í™” í›„ ë³€ê²½X
 	bufferDesc.ByteWidth = UINT(sizeof(uint16_t) * indices.size());
 	bufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 	bufferDesc.CPUAccessFlags = 0; // 0 if no CPU access is necessary.
@@ -449,18 +347,18 @@ bool D3d11Renderer::createVertexShaderAndInputLayout(
 	compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #endif
 
-	// ÁÖÀÇ: ½¦ÀÌ´õÀÇ ½ÃÀÛÁ¡ÀÇ ÀÌ¸§ÀÌ "main"ÀÎ ÇÔ¼ö·Î ÁöÁ¤
+	// ì£¼ì˜: ì‰ì´ë”ì˜ ì‹œì‘ì ì˜ ì´ë¦„ì´ "main"ì¸ í•¨ìˆ˜ë¡œ ì§€ì •
 	HRESULT hr = D3DCompileFromFile(filename.c_str(), 0, 0, "main", "vs_5_0", compileFlags, 0, &shaderBlob, &errorBlob);
 
 	if (FAILED(hr))
 	{
-		// ÆÄÀÏÀÌ ¾øÀ» °æ¿ì
+		// íŒŒì¼ì´ ì—†ì„ ê²½ìš°
 		if ((hr & D3D11_ERROR_FILE_NOT_FOUND) != 0)
 		{
 			cout << "File not found." << endl;
 		}
 
-		// ¿¡·¯ ¸Ş½ÃÁö°¡ ÀÖÀ¸¸é Ãâ·Â
+		// ì—ëŸ¬ ë©”ì‹œì§€ê°€ ìˆìœ¼ë©´ ì¶œë ¥
 		if (errorBlob)
 		{
 			cout << "Shader compile error\n" << (char*)errorBlob->GetBufferPointer() << endl;
@@ -479,7 +377,7 @@ bool D3d11Renderer::createVertexShaderAndInputLayout(
 		return false;
 	}
 
-	// input layout: vertex shader¿¡ ¾î¶² µ¥ÀÌÅÍ¸¦ ³Ö¾îÁÙÁö ±â·Ï
+	// input layout: vertex shaderì— ì–´ë–¤ ë°ì´í„°ë¥¼ ë„£ì–´ì¤„ì§€ ê¸°ë¡
 	if (FAILED(device->CreateInputLayout(
 		inputElements.data(),
 		UINT(inputElements.size()),
@@ -490,8 +388,8 @@ bool D3d11Renderer::createVertexShaderAndInputLayout(
 		cout << "CreateInputLayout() failed.\n" << endl;
 		return false;
 	}
-	// Âü°í: ¼öµ¿À¸·Î ÄÄÆÄÀÏ ÇÏ±â
-	// "fxc.exe"ÀÇ À§Ä¡´Â °¢ÀÚ ´Ù¸¦ ¼öµµ ÀÖ½À´Ï´Ù.
+	// ì°¸ê³ : ìˆ˜ë™ìœ¼ë¡œ ì»´íŒŒì¼ í•˜ê¸°
+	// "fxc.exe"ì˜ ìœ„ì¹˜ëŠ” ê°ì ë‹¤ë¥¼ ìˆ˜ë„ ìˆìŠµë‹ˆë‹¤.
 	//"C:\Program Files (x86)\Windows Kits\10\bin\10.0.19041.0\x86\fxc.exe"
 	// C:\Users\jmhong\HongLabGraphicsPart2\06_GraphicsPipeline_Step4_Shaders\ColorVertexShader.hlsl
 	// /T "vs_5_0" /E "main" /Fo "ColorVertexShader.cso" /Fx
@@ -519,18 +417,18 @@ bool D3d11Renderer::createPixelShader(const wstring& filename, ComPtr<ID3D11Pixe
 	compileFlags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #endif
 
-	// ÁÖÀÇ: ½¦ÀÌ´õÀÇ ½ÃÀÛÁ¡ÀÇ ÀÌ¸§ÀÌ "main"ÀÎ ÇÔ¼ö·Î ÁöÁ¤
+	// ì£¼ì˜: ì‰ì´ë”ì˜ ì‹œì‘ì ì˜ ì´ë¦„ì´ "main"ì¸ í•¨ìˆ˜ë¡œ ì§€ì •
 	HRESULT hr = D3DCompileFromFile(filename.c_str(), 0, 0, "main", "ps_5_0", compileFlags, 0, &shaderBlob, &errorBlob);
 
 	if (FAILED(hr))
 	{
-		// ÆÄÀÏÀÌ ¾øÀ» °æ¿ì
+		// íŒŒì¼ì´ ì—†ì„ ê²½ìš°
 		if ((hr & D3D11_ERROR_FILE_NOT_FOUND) != 0)
 		{
 			cout << "File not found." << endl;
 		}
 
-		// ¿¡·¯ ¸Ş½ÃÁö°¡ ÀÖÀ¸¸é Ãâ·Â
+		// ì—ëŸ¬ ë©”ì‹œì§€ê°€ ìˆìœ¼ë©´ ì¶œë ¥
 		if (errorBlob)
 		{
 			cout << "Shader compile error\n" << (char*)errorBlob->GetBufferPointer() << endl;
@@ -552,6 +450,161 @@ bool D3d11Renderer::createPixelShader(const wstring& filename, ComPtr<ID3D11Pixe
 	return true;
 }
 
+bool D3d11Renderer::createSwapChain()
+{
+	// swap chain
+	// ë²„í¼ì˜ í¬ì¸í„°ë§Œ ì™”ë‹¤ê°”ë‹¤ í•œë‹¤: Page Flipping
+	DXGI_SWAP_CHAIN_DESC swapChainDesc;
+	{
+		ZeroMemory(&swapChainDesc, sizeof(swapChainDesc));
+		swapChainDesc.BufferDesc.Width = width;
+		swapChainDesc.BufferDesc.Height = height;
+		swapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;	// use 32-bit color
+		swapChainDesc.BufferCount = 2;									// Double-buffering
+		swapChainDesc.BufferDesc.RefreshRate.Numerator = 60;			// ì£¼ì‚¬ìœ¨, ë¶„ì
+		swapChainDesc.BufferDesc.RefreshRate.Denominator = 1;			// ì£¼ì‚¬ìœ¨, ë¶„ëª¨ ( 60 / 1 )
+		swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;	// how swap chain is to be used
+		swapChainDesc.OutputWindow = mainWindowHandle;                  // the window to be used
+		swapChainDesc.Windowed = TRUE;									// windowed/full-screen mode
+		swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;	// allow full-screen switching
+		swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+		if (massSamplingCount > 0)
+		{
+			swapChainDesc.SampleDesc.Count = 4; // how many multisamples
+			swapChainDesc.SampleDesc.Quality = massSamplingCount - 1;
+		}
+		else
+		{
+			swapChainDesc.SampleDesc.Count = 1; // how many multisamples
+			swapChainDesc.SampleDesc.Quality = 0;
+		}
+	}
+
+	// Create swap chain
+	{
+		ComPtr<IDXGIDevice> dxgiDevice;
+		device.As(&dxgiDevice);
+
+		ComPtr<IDXGIAdapter> dxgiAdapter;
+		dxgiDevice->GetAdapter(&dxgiAdapter);
+
+		ComPtr<IDXGIFactory1> dxgiFactory;
+		dxgiAdapter->GetParent(IID_PPV_ARGS(&dxgiFactory));
+
+		if (!dxgiFactory)
+		{
+			std::cout << "Failed to retrieve the IDXGIFactory1 interface associated with D3D11 device" << endl;
+			return false;
+		}
+
+		if (FAILED(dxgiFactory->CreateSwapChain(device.Get(), &swapChainDesc, swapChain.GetAddressOf())))
+		{
+			std::cout << "CreateSwapChain() failed." << endl;
+			return false;
+		}
+	}
+
+	return true;
+}
+
+bool D3d11Renderer::createRenderTargetView()
+{
+	if (!swapChain)
+	{
+		cout << "Swapchain missing." << endl;
+		return false;
+	}
+
+	ComPtr<ID3D11Texture2D> backBuffer;
+	swapChain->GetBuffer(0, IID_PPV_ARGS(backBuffer.GetAddressOf()));
+	if (backBuffer)
+	{
+		if (FAILED(device->CreateRenderTargetView(backBuffer.Get(), nullptr, renderTargetView.GetAddressOf())))
+		{
+			cout << "CreateRenderTargetView() failed." << endl;
+			return false;
+		}
+	}
+	else
+	{
+		cout << "Backbuffer missing." << endl;
+		return false;
+	}
+
+	return true;
+}
+
+bool D3d11Renderer::createDepthBuffer()
+{
+	D3D11_TEXTURE2D_DESC depthStencilBufferDesc;
+	depthStencilBufferDesc.Width = width;
+	depthStencilBufferDesc.Height = height;
+	depthStencilBufferDesc.MipLevels = 1;
+	depthStencilBufferDesc.ArraySize = 1;
+	depthStencilBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	if (massSamplingCount > 0)
+	{
+		depthStencilBufferDesc.SampleDesc.Count = 4; // how many multisamples
+		depthStencilBufferDesc.SampleDesc.Quality = massSamplingCount - 1;
+	}
+	else
+	{
+		depthStencilBufferDesc.SampleDesc.Count = 1; // how many multisamples
+		depthStencilBufferDesc.SampleDesc.Quality = 0;
+	}
+	depthStencilBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	depthStencilBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	depthStencilBufferDesc.CPUAccessFlags = 0;
+	depthStencilBufferDesc.MiscFlags = 0;
+
+	if (FAILED(device->CreateTexture2D(&depthStencilBufferDesc, 0, depthStencilBuffer.GetAddressOf())))
+	{
+		cout << "CreateTexture2D() failed." << endl;
+		return false;
+	}
+	if (FAILED(device->CreateDepthStencilView(depthStencilBuffer.Get(), 0, depthStencilView.GetAddressOf())))
+	{
+		cout << "CreateDepthStencilView() failed." << endl;
+		return false;
+	}
+
+	return true;
+}
+
+void D3d11Renderer::setViewport()
+{
+	if (!context)
+	{
+		cout << "context missing." << endl;
+		return;
+	}
+
+	if (!bViewportNeedUpdate)
+	{
+		return;
+	}
+
+	bViewportNeedUpdate = false;
+
+	ZeroMemory(&screenViewport, sizeof(D3D11_VIEWPORT));
+	screenViewport.TopLeftX = static_cast<float>(guiWidth);
+	screenViewport.TopLeftY = 0;
+	screenViewport.Width = static_cast<float>(width - guiWidth);
+	screenViewport.Height = static_cast<float>(height);
+	screenViewport.MinDepth = 0.0f;
+	screenViewport.MaxDepth = 1.0f; // Note: important for depth buffering
+	context->RSSetViewports(1, &screenViewport);
+}
+
+void D3d11Renderer::setGuiWidth(const int newWidth)
+{
+	if (guiWidth != newWidth)
+	{
+		bViewportNeedUpdate = true;
+		guiWidth = newWidth;
+	}
+}
+
 void D3d11Renderer::updateGui()
 {
 	ImGui::Checkbox("usePerspectiveProjection", &bUsePerspectiveProjection);
@@ -571,26 +624,30 @@ void D3d11Renderer::updateGui()
 	ImGui::SliderFloat("projFovAngleY(Deg)", &projFovAngleY, 10.0f, 180.0f);
 	ImGui::SliderFloat("nearZ", &nearZ, 0.01f, 10.0f);
 	ImGui::SliderFloat("farZ", &farZ, nearZ + 0.01f, 15.0f);
-	ImGui::SliderFloat("aspect", &aspect, 1.0f, 3.0f);
+	
+	ImGui::SetWindowPos(ImVec2(0.0f, 0.0f));
+	int curGuiWidth = static_cast<int>(ImGui::GetWindowWidth());
+	setGuiWidth(curGuiWidth);
 }
 
 void D3d11Renderer::update(float dt)
 {
-	// ¸ğµ¨ÀÇ º¯È¯
+	// ëª¨ë¸ì˜ ë³€í™˜
 	constantBufferData.Model = Matrix::CreateScale(modelScaling) *
 							   Matrix::CreateRotationY(modelRotation.y) * 
 							   Matrix::CreateRotationX(modelRotation.x) *
 							   Matrix::CreateRotationZ(modelRotation.z) *
 							   Matrix::CreateTranslation(modelTranslation);
-	// (º¹½À)HLSL Àº ¿À¸¥¼Õ ÁÂÇ¥°è, Direct3D´Â ¿Ş¼Õ ÁÂÇ¥°è(Row-major)
-	constantBufferData.Model = constantBufferData.Model.Transpose(); // R-major¿¡¼­ C-major·Î
+	// (ë³µìŠµ)HLSL ì€ ì˜¤ë¥¸ì† ì¢Œí‘œê³„, Direct3DëŠ” ì™¼ì† ì¢Œí‘œê³„(Row-major)
+	constantBufferData.Model = constantBufferData.Model.Transpose(); // R-majorì—ì„œ C-majorë¡œ
 
-	// ½ÃÁ¡ º¯È¯
-	//constantBufferData.View = XMMatrixLookAtLH(viewEye, viewFocus, viewUp); ³»ºÎÀûÀ¸·Î XMMatrixLookToLH() È£ÃâÇÔ
+	// ì‹œì  ë³€í™˜
+	//constantBufferData.View = XMMatrixLookAtLH(viewEye, viewFocus, viewUp); ë‚´ë¶€ì ìœ¼ë¡œ XMMatrixLookToLH() í˜¸ì¶œí•¨
 	constantBufferData.View = XMMatrixLookToLH(viewEyePos, viewEyeDir, viewUp);
 	constantBufferData.View = constantBufferData.View.Transpose();
 
-	// ÇÁ·ÎÁ§¼Ç
+	// í”„ë¡œì ì…˜
+	const float aspect = getAspectRatio();
 	if (bUsePerspectiveProjection) 
 	{
 		constantBufferData.Projection = XMMatrixPerspectiveFovLH(XMConvertToRadians(projFovAngleY), aspect, nearZ, farZ);
@@ -606,11 +663,13 @@ void D3d11Renderer::update(float dt)
 
 void D3d11Renderer::render()
 {
+	setViewport();
+
 	// IA: Input-Assembler stage
 	// VS: Vertex Shader
 	// PS: Pixel Shader
 	// RS: Rasterizer stage
-	// OM: Output-Merger stage // °ãÃÄÀÖ´Â FragmentÀÇ °æ¿ì ¾î¶² fragment¸¦ Ãâ·ÂÇÒ pixel·Î ¼±ÅÃÇÒ °ÍÀÎ°¡
+	// OM: Output-Merger stage // ê²¹ì³ìˆëŠ” Fragmentì˜ ê²½ìš° ì–´ë–¤ fragmentë¥¼ ì¶œë ¥í•  pixelë¡œ ì„ íƒí•  ê²ƒì¸ê°€
 
 	context->RSSetViewports(1, &screenViewport);
 
@@ -618,17 +677,17 @@ void D3d11Renderer::render()
 	context->ClearRenderTargetView(renderTargetView.Get(), clearColor);
 	context->ClearDepthStencilView(depthStencilView.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	// ºñ±³: Depth Buffer¸¦ »ç¿ëÇÏÁö ¾Ê´Â °æ¿ì
-	// &renderTargetView¸¦ ±×´ë·Î ¾²¸é ¹®Á¦°¡ »ı±ä´Ù... ¤Ğ¤Ğ ¿ÖÀÌ·¯´Â°Å¾ß ´ëÃ¼
+	// ë¹„êµ: Depth Bufferë¥¼ ì‚¬ìš©í•˜ì§€ ì•ŠëŠ” ê²½ìš°
+	// &renderTargetViewë¥¼ ê·¸ëŒ€ë¡œ ì“°ë©´ ë¬¸ì œê°€ ìƒê¸´ë‹¤... ã… ã…  ì™œì´ëŸ¬ëŠ”ê±°ì•¼ ëŒ€ì²´
 	//context->OMSetRenderTargets(1, &renderTargetView, nullptr);
 	context->OMSetRenderTargets(1, renderTargetView.GetAddressOf(), depthStencilView.Get());
 
 	context->OMSetDepthStencilState(depthStencilState.Get(), 0);
 
-	// ¾î¶² ½¦ÀÌ´õ¸¦ »ç¿ëÇÒÁö ¼³Á¤
+	// ì–´ë–¤ ì‰ì´ë”ë¥¼ ì‚¬ìš©í• ì§€ ì„¤ì •
 	context->VSSetShader(colorVertexShader.Get(), 0, 0);
 
-	/* °æ¿ì¿¡ µû¶ó¼­´Â Æ÷ÀÎÅÍÀÇ ¹è¿­À» ³Ö¾îÁÙ ¼öµµ ÀÖ½À´Ï´Ù.
+	/* ê²½ìš°ì— ë”°ë¼ì„œëŠ” í¬ì¸í„°ì˜ ë°°ì—´ì„ ë„£ì–´ì¤„ ìˆ˜ë„ ìˆìŠµë‹ˆë‹¤.
 	ID3D11Buffer *pptr[1] = {
 		constantBuffer.Get(),
 	};
@@ -639,7 +698,7 @@ void D3d11Renderer::render()
 
 	context->RSSetState(rasterizerState.Get());
 
-	// ¹öÅØ½º/ÀÎµ¦½º ¹öÆÛ ¼³Á¤
+	// ë²„í…ìŠ¤/ì¸ë±ìŠ¤ ë²„í¼ ì„¤ì •
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
 	context->IASetInputLayout(colorInputLayout.Get());
