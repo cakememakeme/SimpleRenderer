@@ -16,7 +16,7 @@ class Object;
 class Mesh;
 class Light;
 
-// CPU로 구현한 렌더 파이프라인, @todo. 타일메모리를 넣어서 모바일 렌더 파이프라인을 구현하는 것도 해볼만 할 듯
+// CPU로 구현한 렌더 파이프라인
 class CpuRenderPipeline : public std::enable_shared_from_this<CpuRenderPipeline>
 {
 private:

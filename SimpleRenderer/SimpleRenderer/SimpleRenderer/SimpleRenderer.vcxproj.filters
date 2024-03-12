@@ -16,9 +16,6 @@
     <Filter Include="CpuRenderer">
       <UniqueIdentifier>{f182805f-487c-43a5-b9fb-5ee0c2a7184e}</UniqueIdentifier>
     </Filter>
-    <Filter Include="D3d11Renderer">
-      <UniqueIdentifier>{afcb7b2d-809e-4978-acf3-c0b82478c18a}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -57,8 +54,8 @@
     <ClCompile Include="CpuRenderPipeline.cpp">
       <Filter>CpuRenderer</Filter>
     </ClCompile>
-    <ClCompile Include="D3d11Renderer.cpp">
-      <Filter>D3d11Renderer</Filter>
+    <ClCompile Include="CubeMap.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -78,9 +75,6 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="GeometryGenerator.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="IRenderer.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Light.h">
@@ -104,8 +98,8 @@
     <ClInclude Include="Vertex.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="D3d11Renderer.h">
-      <Filter>D3d11Renderer</Filter>
+    <ClInclude Include="CubeMap.h">
+      <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -114,12 +108,6 @@
     </FxCompile>
     <FxCompile Include="PixelShader.hlsl">
       <Filter>CpuRenderer</Filter>
-    </FxCompile>
-    <FxCompile Include="ColorVertexShader.hlsl">
-      <Filter>D3d11Renderer</Filter>
-    </FxCompile>
-    <FxCompile Include="ColorPixelShader.hlsl">
-      <Filter>D3d11Renderer</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

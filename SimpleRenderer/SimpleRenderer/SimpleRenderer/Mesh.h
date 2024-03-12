@@ -10,13 +10,11 @@ class Mesh : public Object
 {
 public:
 	std::vector<Vertex> Vertices;
-	std::vector<size_t> Indices;
+	std::vector<uint32_t> Indices;
 	Material Material;
 
 public:
 	virtual ~Mesh();
-
-	void TestBox();
 
 private:
 

@@ -2,26 +2,10 @@
 
 #include "Application.h"
 
-static ERenderer GetRendererType(const std::string& arg)
+int main(/*int argc, char* argv[]*/)
 {
-	if (arg == "Cpu")
-	{
-		return ERenderer::Cpu;
-	}
-	else if (arg == "D3d11")
-	{
-		return ERenderer::D3d11;
-	}
-
-	return ERenderer::None;
-}
-
-int main(int argc, char* argv[])
-{
-	ERenderer type = GetRendererType(argc < 2 ? "Cpu" : argv[1]);
-
 	Application renderingApp;
-	if (!renderingApp.Initialize(type))
+	if (!renderingApp.Initialize())
 	{
 		std::cout << "Initialization failed." << std::endl;
 		return -1;

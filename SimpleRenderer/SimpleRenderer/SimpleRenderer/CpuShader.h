@@ -53,7 +53,7 @@ struct PsInput
 // GPU에서 내부적으로 사용하는 메모리라고 생각합시다.
 
 ShaderConstants g_constants; // 쉐이더 상수
-std::vector<size_t> g_indexBuffer;
+std::vector<uint32_t> g_indexBuffer;
 std::vector<DirectX::SimpleMath::Vector4> g_displayBuffer;
 std::vector<float> g_depthBuffer;
 std::vector<DirectX::SimpleMath::Vector3> g_vertexBuffer;

@@ -63,7 +63,7 @@ void MeshLoader::processNode(aiNode* node, const aiScene* scene, DirectX::Simple
 Mesh MeshLoader::processMesh(aiMesh* mesh, const aiScene* scene)
 {
     std::vector<Vertex> vertices;
-    std::vector<size_t> indices;
+    std::vector<uint32_t> indices;
 
     // Walk through each of the mesh's vertices
     for (UINT i = 0; i < mesh->mNumVertices; ++i) 
@@ -134,9 +134,9 @@ void MeshLoader::calcNormal()
         for (int i = 0; i < m.Indices.size(); i += 3)
         {
 
-            size_t idx0 = m.Indices[i];
-            size_t idx1 = m.Indices[i + 1];
-            size_t idx2 = m.Indices[i + 2];
+            uint32_t idx0 = m.Indices[i];
+            uint32_t idx1 = m.Indices[i + 1];
+            uint32_t idx2 = m.Indices[i + 2];
 
             auto v0 = m.Vertices[idx0];
             auto v1 = m.Vertices[idx1];

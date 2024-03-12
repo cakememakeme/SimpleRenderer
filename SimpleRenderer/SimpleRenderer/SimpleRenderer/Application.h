@@ -1,19 +1,16 @@
 #pragma once
 
+#include <windows.h>
+
+#include <vector>
 #include <memory>
 
-#include "IRenderer.h"
+class CpuRenderer;
 
 enum class ERenderer
 {
 	None = 0,
-	D3d11,
-	Cpu,
-	//D3d11Rt,
-	//D3d11Pbr,
-	//Vk,
-	//VkRt,
-	//VkPbr
+	Cpu
 };
 
 class Application
@@ -24,21 +21,19 @@ private:
 
 	HWND mainWindowHandle;
 
-	std::unique_ptr<IRenderer> renderer;
+	std::unique_ptr<CpuRenderer> renderer;
 
 public:
 	Application();
 	~Application();
 
-	bool Initialize(const ERenderer type);
+	bool Initialize();
 	int Run();
 	LRESULT MessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 private:
-	std::vector<std::shared_ptr<Object>> generateObjects();
-
 	bool initMainWindows();
 
-	bool createRenderer(const ERenderer& type);
+	bool createRenderer();
 };
 

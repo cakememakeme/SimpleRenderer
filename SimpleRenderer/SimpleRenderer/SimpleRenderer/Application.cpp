@@ -9,7 +9,6 @@
 #include <memory>
 
 #include "CpuRenderer.h"
-#include "D3d11Renderer.h"
 #include "Mesh.h"
 #include "Light.h"
 #include "GeometryGenerator.h"
@@ -92,14 +91,14 @@ LRESULT Application::MessageProcedure(HWND hWnd, UINT msg, WPARAM wParam, LPARAM
     return ::DefWindowProc(hWnd, msg, wParam, lParam);
 }
 
-bool Application::Initialize(const ERenderer type)
+bool Application::Initialize()
 {
     if (!initMainWindows())
     {
         return false;
     }
 
-    if (!createRenderer(type))
+    if (!createRenderer())
     {
         std::cout << "createRenderer() failed." << std::endl;
         return false;
@@ -107,13 +106,11 @@ bool Application::Initialize(const ERenderer type)
 
     if (!renderer->Initialize(mainWindowHandle, windowWidth, windowHeight))
     {
-        std::cout << "IRenderer::Initialize() failed." << std::endl;
+        std::cout << "CpuRenderer::Initialize() failed." << std::endl;
         return false;
     }
 
-    vector<shared_ptr<Object>> objects = generateObjects();
-
-    renderer->SetObjects(std::move(objects));
+    renderer->Setup();
     
 	return true;
 }
@@ -139,51 +136,6 @@ int Application::Run()
     }
 
 	return 0;
-}
-
-std::vector<std::shared_ptr<Object>> Application::generateObjects()
-{
-    vector<shared_ptr<Object>> objects = std::vector<std::shared_ptr<Object>>();
-
-    // 메시 설정
-    std::vector<Mesh> meshes = GeometryGenerator::ReadFromFile("./groza/", "Wp_Gun_Groza.fbx");
-    objects.reserve(meshes.size());
-    for (const Mesh& mesh : meshes)
-    {
-        std::shared_ptr<Mesh> newMesh = make_shared<Mesh>(mesh);
-        newMesh->Transform.rotationX += 0.15f;
-        newMesh->Transform.translation.y -= 0.2f;
-        newMesh->Transform.translation.z += 0.2f;
-        newMesh->Transform.scale = Vector3(2.0f);
-        objects.push_back(newMesh);
-    }
-
-    //테스트
-    {
-        ////박스
-        //std::shared_ptr<Mesh> mesh = make_shared<Mesh>(GeometryGenerator::MakeBox());
-        //
-        ////평면
-        ////std::shared_ptr<Mesh> mesh = make_shared<Mesh>(GeometryGenerator::MakePlane());
-        //if (mesh)
-        //{
-        //    constexpr float toRadian = 3.141592f / 180.0f;
-        //    //mesh->TestBox();
-        //    mesh->Transform.translation = Vector3(0.0f, -0.3f, 1.0f);
-        //    mesh->Transform.rotationX = 60.0f * toRadian;
-        //    mesh->Transform.rotationY = 40.0f * toRadian;
-        //    mesh->Transform.rotationZ = -20.0f * toRadian;
-        //    mesh->Transform.scale = Vector3(0.5f, 0.5f, 0.5f);
-        //    objects.push_back(mesh);
-        //}
-    }
-
-    std::shared_ptr<Light> light = make_shared<Light>();
-    light->Strength = Vector3(1.0f);
-    light->Direction = Vector3(0.0f, -0.5f, 0.5f);
-    objects.push_back(light);
-
-    return objects;
 }
 
 bool Application::initMainWindows()
@@ -236,24 +188,8 @@ bool Application::initMainWindows()
     return true;
 }
 
-bool Application::createRenderer(const ERenderer& type)
+bool Application::createRenderer()
 {
-    switch (type)
-    {
-        case ERenderer::Cpu:
-        {
-            renderer = std::make_unique<CpuRenderer>();
-        }
-        break;
-        case ERenderer::D3d11:
-        {
-            renderer = std::make_unique<D3d11Renderer>();
-        }
-        break;
-        default:
-        {
-            return false;
-        }
-    }
+    renderer = std::make_unique<CpuRenderer>();
     return true;
 }

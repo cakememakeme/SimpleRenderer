@@ -18,12 +18,12 @@ CpuRenderPipeline::CpuRenderPipeline()
 
 bool CpuRenderPipeline::Initialize(const int bufferWidth, const int bufferHeight)
 {
-    g_width = bufferWidth;
-    g_height = bufferHeight;
+    g_width = bufferWidth <= 0 ? 1 : bufferWidth;
+    g_height = bufferHeight <= 0 ? 1 : bufferHeight;
 
     const int bufferSize = g_width * g_height;
 
-    // 출력용 버퍼 초기화(@todo. swapchain 구현...? 아마 안하지 않을까)
+    // 출력용 버퍼 초기화
     g_displayBuffer.resize(bufferSize);
 
     // 깊이 버퍼 초기화
@@ -43,9 +43,9 @@ void CpuRenderPipeline::Reset()
     fill(g_depthBuffer.begin(), g_depthBuffer.end(), g_viewDistanceCulling);
 }
 
-void CpuRenderPipeline::SetObjects(const std::vector<std::shared_ptr<Object>>& receivedObjects)
+void CpuRenderPipeline::SetObjects(const std::vector<std::shared_ptr<Object>>& inObjects)
 {
-    for (auto& object : receivedObjects)
+    for (auto& object : inObjects)
     {
         shared_ptr<Mesh> mesh = dynamic_pointer_cast<Mesh>(object);
         if (mesh)

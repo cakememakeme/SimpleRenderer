@@ -236,6 +236,62 @@ Mesh GeometryGenerator::MakePlane()
     return meshData;
 }
 
+Mesh GeometryGenerator::MakeSphere(const float radius, const int numSlices, const int numStacks)
+{
+    // http://www.songho.ca/opengl/gl_sphere.html
+    // Texture 좌표계때문에 (numSlices + 1) 개의 버텍스 사용 (마지막에 닫아주는
+    // 버텍스가 중복) Stack은 y 위쪽 방향으로 쌓아가는 방식
+
+    const float dTheta = -XM_2PI / float(numSlices);
+    const float dPhi = -XM_PI / float(numStacks);
+
+    Mesh mesh;
+
+    vector<Vertex>& vertices = mesh.Vertices;
+
+    for (int j = 0; j <= numStacks; j++) {
+
+        // 스택에 쌓일 수록 시작점을 x-y 평면에서 회전 시켜서 위로 올리는 구조
+        Vector3 stackStartPoint = Vector3::Transform(
+            Vector3(0.0f, -radius, 0.0f), Matrix::CreateRotationZ(dPhi * j));
+
+        for (int i = 0; i <= numSlices; i++) {
+            Vertex v;
+
+            // 시작점을 x-z 평면에서 회전시키면서 원을 만드는 구조
+            v.Position = Vector3::Transform(
+                stackStartPoint, Matrix::CreateRotationY(dTheta * float(i)));
+
+            v.Normal = v.Position; // 원점이 구의 중심
+            v.Normal.Normalize();
+            v.TexCoord =
+                Vector2(float(i) / numSlices, 1.0f - float(j) / numStacks);
+
+            vertices.push_back(v);
+        }
+    }
+
+    vector<uint32_t>& indices = mesh.Indices;
+
+    for (int j = 0; j < numStacks; j++) {
+
+        const int offset = (numSlices + 1) * j;
+
+        for (int i = 0; i < numSlices; i++) {
+
+            indices.push_back(offset + i);
+            indices.push_back(offset + i + numSlices + 1);
+            indices.push_back(offset + i + 1 + numSlices + 1);
+
+            indices.push_back(offset + i);
+            indices.push_back(offset + i + 1 + numSlices + 1);
+            indices.push_back(offset + i + 1);
+        }
+    }
+
+    return mesh;
+}
+
 std::tuple<std::vector<Vertex>, std::vector<uint16_t>> GeometryGenerator::MakeBox_TEMP()
 {
     vector<Vector3> positions;
